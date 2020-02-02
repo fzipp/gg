@@ -1,10 +1,24 @@
-# ggpack
+# gg
 
-A tool to list and extract files from a .ggpack archive as used by the
-[Thimbleweed Park](https://thimbleweedpark.com/) point-and-click adventure
-game engine.
+A set of command line tools and [Go](https://golang.org) packages to work with
+files in various formats also used by the game engine of [Thimbleweed
+Park™](https://thimbleweedpark.com/). Go buy and play the game now, if you
+haven't already done so.
 
-## Related Work
+The project name "gg" was chosen, because the names of a lot of these formats
+start with those two letters, e.g. "ggpack" or "GGDictionary" — most likely
+because they were invented by [Grumpy Gamer](grumpygamer.com) (Ron Gilbert).
+This project is not related to him or Terrible Toybox, Inc.
+
+## Command line tools
+
+* ggpack
+* ggdict
+* retext
+
+## Go packages
+
+## Related Work / Thanks
 
 Projects by other people with similar objectives:
 
