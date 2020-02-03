@@ -30,4 +30,5 @@ Projects by other people with similar objectives:
   Radare2 plugins to manipulate ggpack archives.
 * [engge](https://github.com/scemino/engge)
   Experimental game engine for Thimbleweed Park by the same author as NGGPack.
-
+* [Thimbleweed Park Explorer](https://github.com/bgbennyboy/Thimbleweed-Park-Explorer)
+  An explorer/viewer/dumper tool for Thimbleweed Park
