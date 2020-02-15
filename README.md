@@ -38,5 +38,5 @@ Projects by other people with similar objectives:
 
 ## License
 
-This project is free and open source licensed under the
-[BSD 3-clause license]((LICENSE)).
+This project is free and open source software licensed under the
+[BSD 3-clause license](LICENSE).
