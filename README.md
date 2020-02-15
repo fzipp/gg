@@ -12,7 +12,7 @@ This project is not related to him or Terrible Toybox, Inc.
 
 * [ggpack](https://pkg.go.dev/github.com/fzipp/gg/cmd/ggpack) A tool to inspect, unpack or create "ggpack" files.
 * [ggdict](https://pkg.go.dev/github.com/fzipp/gg/cmd/ggdict) A tool to convert back and forth between the GGDictionary format and JSON.
-* [retext](https://pkg.go.dev/github.com/fzipp/gg/cmd/retext) A tool to replace ID placeholders like @12345 in files with texts from a text table file in TSV (tab-separated values) format referenced via these IDs.
+* [retext](https://pkg.go.dev/github.com/fzipp/gg/cmd/retext) A tool to replace ID placeholders like @12345 in files with texts from a text table file in TSV format.
 
 ## Go packages
 
@@ -36,3 +36,7 @@ Projects by other people with similar objectives:
 * [ggpack](https://github.com/s-l-teichmann/ggpack)
   Command line tool for inspecting ggpack files, written in Go.
 
+## License
+
+This project is free and open source licensed under the
+[BSD 3-clause license]((LICENSE)).
