@@ -1,7 +1,7 @@
 # gg
 
 A set of command line tools and [Go](https://golang.org) packages to work with
-data files of the game [Thimbleweed Park™](https://thimbleweedpark.com/).
+data files of the game [Thimbleweed Park](https://thimbleweedpark.com/).
 
 The project name "gg" was chosen, because the names of a lot of these formats
 start with those two letters, e.g. "ggpack" or "GGDictionary". They were
@@ -10,13 +10,16 @@ related to him or Terrible Toybox, Inc.
 
 ## Command line tools
 
-* ggpack
-* ggdict
-* retext
+* [ggpack](https://pkg.go.dev/github.com/fzipp/gg/cmd/ggpack)
+* [ggdict](https://pkg.go.dev/github.com/fzipp/gg/cmd/ggdict)
+* [retext](https://pkg.go.dev/github.com/fzipp/gg/cmd/retext)
 
 ## Go packages
 
-## Related Work / Thanks
+* [ggpack](https://pkg.go.dev/github.com/fzipp/gg/ggpack)
+* [ggdict](https://pkg.go.dev/github.com/fzipp/gg/ggdict)
+
+## Related Work
 
 Projects by other people with similar objectives:
 
