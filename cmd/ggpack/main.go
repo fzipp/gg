@@ -28,12 +28,13 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/fzipp/gg/crypt/xor"
-	"github.com/fzipp/gg/ggpack"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/fzipp/gg/crypt/xor"
+	"github.com/fzipp/gg/ggpack"
 )
 
 func usage() {
