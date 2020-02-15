@@ -11,6 +11,10 @@
 //
 // Flags:
 //     -w  Write result to the source file instead of standard output.
+//
+// Examples:
+//     nutfmt Example.bnut | less
+//     nutfmt -w Example.bnut
 package main
 
 import (
@@ -30,7 +34,11 @@ Usage:
     nutfmt [-w] [path ...]
 
 Flags:
-    -w  Write result to the source file instead of standard output.`)
+    -w  Write result to the source file instead of standard output.
+
+Examples:
+    nutfmt Example.bnut | less
+    nutfmt -w Example.bnut`)
 }
 
 func main() {

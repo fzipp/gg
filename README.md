@@ -13,6 +13,7 @@ This project is not related to him or Terrible Toybox, Inc.
 * [ggpack](https://pkg.go.dev/github.com/fzipp/gg/cmd/ggpack) A tool to inspect, unpack or create "ggpack" files.
 * [ggdict](https://pkg.go.dev/github.com/fzipp/gg/cmd/ggdict) A tool to convert back and forth between the GGDictionary format and JSON.
 * [retext](https://pkg.go.dev/github.com/fzipp/gg/cmd/retext) A tool to replace ID placeholders like @12345 in files with texts from a text table file in TSV format.
+* [nutfmt](https://pkg.go.dev/github.com/fzipp/gg/cmd/nutfmt) A tool to indent Squirrel script files.
 
 ### Installation
 
