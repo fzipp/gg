@@ -17,7 +17,7 @@ This project is not related to him or Terrible Toybox, Inc.
 
 ### Installation
 
-Either download binaries for your operating system from the [latest release](/fzipp/gg/releases/latest) or build from source with Go:
+Either download binaries for your operating system from the [latest release](https://github.com/fzipp/gg/releases/latest) or build from source with Go:
 
 ```
 go get github.com/fzipp/gg/cmd/...
