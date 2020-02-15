@@ -1,14 +1,12 @@
 # gg
 
 A set of command line tools and [Go](https://golang.org) packages to work with
-files in various formats also used by the game engine of [Thimbleweed
-Park™](https://thimbleweedpark.com/). Go buy and play the game now, if you
-haven't already done so.
+data files of the game [Thimbleweed Park™](https://thimbleweedpark.com/).
 
 The project name "gg" was chosen, because the names of a lot of these formats
-start with those two letters, e.g. "ggpack" or "GGDictionary" — most likely
-because they were invented by [Grumpy Gamer](grumpygamer.com) (Ron Gilbert).
-This project is not related to him or Terrible Toybox, Inc.
+start with those two letters, e.g. "ggpack" or "GGDictionary". They were
+conceived by [Grumpy Gamer](grumpygamer.com) (Ron Gilbert). This project is not
+related to him or Terrible Toybox, Inc.
 
 ## Command line tools
 
@@ -32,3 +30,6 @@ Projects by other people with similar objectives:
   Experimental game engine for Thimbleweed Park by the same author as NGGPack.
 * [Thimbleweed Park Explorer](https://github.com/bgbennyboy/Thimbleweed-Park-Explorer)
   An explorer/viewer/dumper tool for Thimbleweed Park
+* [ggpack](https://github.com/s-l-teichmann/ggpack)
+  Command line tool for inspecting ggpack files, written in Go.
+
