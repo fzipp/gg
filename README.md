@@ -5,7 +5,7 @@ data files of the game [Thimbleweed Park](https://thimbleweedpark.com/).
 
 The project name "gg" was chosen, because the names of a lot of these formats
 start with those two letters, e.g. "ggpack" or "GGDictionary". They were
-conceived by [Grumpy Gamer](grumpygamer.com) (Ron Gilbert). This project is not
+conceived by [Grumpy Gamer](https://grumpygamer.com/) (Ron Gilbert). This project is not
 related to him or Terrible Toybox, Inc.
 
 ## Command line tools
