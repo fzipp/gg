@@ -39,15 +39,12 @@
 package main
 
 import (
-	"bufio"
 	"bytes"
-	"encoding/csv"
 	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
-	"strconv"
 )
 
 func usage() {
@@ -89,7 +86,7 @@ func main() {
 		return
 	}
 
-	texts, err := loadTextsFromFile(*textsFilePath)
+	texts, err := LoadTextsFromFile(*textsFilePath)
 	check(err)
 
 	var w io.Writer = os.Stdout
@@ -107,110 +104,18 @@ func main() {
 		}
 	}
 	if len(inputFiles) == 0 {
-		err := replaceTexts(w, os.Stdin, texts)
+		err := texts.InsertTexts(w, os.Stdin)
 		check(err)
 	}
 }
 
-func processFile(w io.Writer, path string, texts textTable) error {
+func processFile(w io.Writer, path string, texts TextTable) error {
 	file, err := os.Open(path)
 	if err != nil {
 		return fmt.Errorf("could not open source file: %w", err)
 	}
 	defer file.Close()
-	return replaceTexts(w, file, texts)
-}
-
-const idMarker = '@'
-
-func replaceTexts(w io.Writer, r io.Reader, texts textTable) error {
-	withinTextID := false
-	var bufferedTextID []byte
-	br := bufio.NewReader(r)
-	for {
-		b, err := br.ReadByte()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return fmt.Errorf("could not read from input: %w", err)
-		}
-		if b == idMarker {
-			withinTextID = true
-			bufferedTextID = bufferedTextID[:0]
-			continue
-		}
-		if withinTextID {
-			if isNumeric(b) {
-				bufferedTextID = append(bufferedTextID, b)
-				continue
-			}
-			if len(bufferedTextID) > 0 {
-				textID, err := strconv.Atoi(string(bufferedTextID))
-				if err != nil {
-					return fmt.Errorf("could not parse text ID: %w", err)
-				}
-				_, err = w.Write([]byte(texts[textID]))
-				if err != nil {
-					return fmt.Errorf("could not write replacement text to output: %w", err)
-				}
-			} else {
-				_, err := w.Write([]byte{idMarker})
-				if err != nil {
-					return  fmt.Errorf("could not write text ID marker to output: %w", err)
-				}
-			}
-			withinTextID = false
-		}
-		_, err = w.Write([]byte{b})
-		if err != nil {
-			return fmt.Errorf("could not write to output: %w", err)
-		}
-	}
-	return nil
-}
-
-func isNumeric(b byte) bool {
-	return b >= '0' && b <= '9'
-}
-
-type textTable map[int]string
-
-func loadTextsFromFile(filepath string) (textTable, error) {
-	file, err := os.Open(filepath)
-	if err != nil {
-		return nil, fmt.Errorf("could not open text table file: %w", err)
-	}
-	defer file.Close()
-	return loadTexts(file)
-}
-
-func loadTexts(r io.Reader) (textTable, error) {
-	csvReader := csv.NewReader(r)
-	csvReader.Comma = '\t'
-	csvReader.LazyQuotes = true
-	texts := make(textTable)
-	lineNumber := 0
-	for {
-		lineNumber++
-		record, err := csvReader.Read()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return nil, fmt.Errorf("could not read TSV record: %w", err)
-		}
-		if lineNumber == 1 {
-			// skip header
-			continue
-		}
-		id, err := strconv.Atoi(record[0])
-		if err != nil {
-			return nil, fmt.Errorf("could not parse text ID: %w", err)
-		}
-		texts[id] = record[1]
-	}
-	return texts, nil
+	return texts.InsertTexts(w, file)
 }
 
 func check(err error) {
