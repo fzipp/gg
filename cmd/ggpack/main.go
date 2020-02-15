@@ -41,7 +41,7 @@ func usage() {
 	fail(`A tool to inspect, unpack or create "ggpack" files.
 
 Usage:
-    ggpack -list|-extract|-create "filename_pattern" ggpack_file
+    ggpack -list|-extract|-create "filename_pattern" [-key name] ggpack_file
 
 Flags:
     -list     List files in the pack matching the pattern.
