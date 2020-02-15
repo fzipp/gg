@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// A tool to list and extract files from a "ggpack" file.
+// A tool to inspect, unpack or create "ggpack" files.
 //
 // Usage:
 //     ggpack -list|-extract|-create "filename_pattern" ggpack_file
@@ -33,7 +33,7 @@ import (
 )
 
 func usage() {
-	fail(`A tool to list and extract files from a "ggpack" file.
+	fail(`A tool to inspect, unpack or create "ggpack" files.
 
 Usage:
     ggpack -list|-extract|-create "filename_pattern" ggpack_file
