@@ -18,6 +18,10 @@
 //     -from-json  Converts the given JSON file to GGDictionary format on
 //                 standard output. You might want to redirect it to a file,
 //                 since it is a binary format.
+//
+// Examples:
+//     ggdict -to-json Example.wimpy > Example.wimpy.json
+//     ggdict -from-json Example.wimpy.json > Example.wimpy
 package main
 
 import (
@@ -46,7 +50,11 @@ Flags:
                 standard output.
     -from-json  Converts the given JSON file to GGDictionary format on
                 standard output. You might want to redirect it to a file,
-                since it is a binary format.`)
+                since it is a binary format.
+
+Examples:
+    ggdict -to-json Example.wimpy > Example.wimpy.json
+    ggdict -from-json Example.wimpy.json > Example.wimpy`)
 }
 
 func main() {
