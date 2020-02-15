@@ -14,6 +14,12 @@ This project is not related to him or Terrible Toybox, Inc.
 * [ggdict](https://pkg.go.dev/github.com/fzipp/gg/cmd/ggdict) A tool to convert back and forth between the GGDictionary format and JSON.
 * [retext](https://pkg.go.dev/github.com/fzipp/gg/cmd/retext) A tool to replace ID placeholders like @12345 in files with texts from a text table file in TSV format.
 
+### Installation
+
+```
+go get github.com/fzipp/gg/cmd/...
+```
+
 ## Go packages
 
 * [ggpack](https://pkg.go.dev/github.com/fzipp/gg/ggpack)
@@ -39,4 +45,4 @@ Projects by other people with similar objectives:
 ## License
 
 This project is free and open source software licensed under the
-[BSD 3-clause license](LICENSE).
+[BSD 3-Clause License](LICENSE).
