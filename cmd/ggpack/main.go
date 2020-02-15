@@ -5,7 +5,7 @@
 // A tool to inspect, unpack or create "ggpack" files.
 //
 // Usage:
-//     ggpack -list|-extract|-create "filename_pattern" ggpack_file
+//     ggpack -list|-extract|-create "filename_pattern" [-key name] ggpack_file
 //
 // Flags:
 //     -list     List files in the pack matching the pattern.
@@ -13,6 +13,8 @@
 //               the current working directory.
 //     -create   Create a new pack and add the files from the file system
 //               matching the pattern.
+//     -key      Name of the key to decrypt/encrypt the data via XOR.
+//               Possible names: 56ad (default), 5bad, 566d, 5b6d
 //
 // Examples:
 //     ggpack -list "*" MyPackage.ggpack1
@@ -26,10 +28,12 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/fzipp/gg/crypt/xor"
 	"github.com/fzipp/gg/ggpack"
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func usage() {
@@ -44,6 +48,8 @@ Flags:
               the current working directory.
     -create   Create a new pack and add the files from the file system
               matching the pattern.
+    -key      Name of the key to decrypt/encrypt the data via XOR.
+              Possible names: 56ad (default), 5bad, 566d, 5b6d
 
 Examples:
     ggpack -list "*" MyPackage.ggpack1
@@ -58,6 +64,7 @@ func main() {
 	listPattern := flag.String("list", "", "List files in the pack matching the pattern.")
 	extractPattern := flag.String("extract", "", "Extract the files from the pack matching the pattern to the current working directory.")
 	createPattern := flag.String("create", "", "Create a new pack and add the files from the file system matching the pattern.")
+	keyName := flag.String("key", "56ad", "Name of the key to decrypt/encrypt the data via XOR.")
 
 	flag.Usage = usage
 	flag.Parse()
@@ -92,16 +99,20 @@ func main() {
 	}
 
 	pattern := patterns[0]
+	key, ok := xor.KnownKeys[strings.ToLower(*keyName)]
+	if !ok {
+		fail("Unknown XOR key name: \"" + *keyName + "\"")
+	}
 
 	if *createPattern != "" {
 		paths, err := filepath.Glob(pattern)
 		check(err)
-		err = create(packFile, paths)
+		err = create(packFile, paths, key)
 		check(err)
 		return
 	}
 
-	pack, err := ggpack.Open(packFile)
+	pack, err := ggpack.OpenUsingKey(packFile, key)
 	check(err)
 	defer pack.Close()
 
@@ -154,7 +165,7 @@ func extract(pack *ggpack.Pack, filename string) {
 	check(err)
 }
 
-func create(packFilePath string, paths []string) error {
+func create(packFilePath string, paths []string, key *xor.Key) error {
 	packFile, err := os.Create(packFilePath)
 	if err != nil {
 		return fmt.Errorf("could not create pack file: %w", err)
@@ -164,6 +175,7 @@ func create(packFilePath string, paths []string) error {
 	if err != nil {
 		return fmt.Errorf("could not initialize pack file: %w", err)
 	}
+	packer.SetKey(key)
 	err = packer.WriteFiles(paths)
 	if err != nil {
 		return fmt.Errorf("could not write files to pack file: %w", err)
