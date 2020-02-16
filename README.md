@@ -27,6 +27,7 @@ go get github.com/fzipp/gg/cmd/...
 
 * [ggpack](https://pkg.go.dev/github.com/fzipp/gg/ggpack)
 * [ggdict](https://pkg.go.dev/github.com/fzipp/gg/ggdict)
+* [texts](https://pkg.go.dev/github.com/fzipp/gg/texts)
 
 ## Related Work
 

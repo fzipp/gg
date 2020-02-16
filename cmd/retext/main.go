@@ -45,6 +45,8 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+
+	"github.com/fzipp/gg/texts"
 )
 
 func usage() {
@@ -69,7 +71,7 @@ text_id en
 }
 
 func main() {
-	textsFilePath := flag.String("t", "", "texts file in TSV format")
+	textsFilePath := flag.String("t", "", "textTable file in TSV format")
 	replaceSource := flag.Bool("w", false, "write result to (source) file instead of stdout")
 
 	flag.Usage = usage
@@ -86,7 +88,7 @@ func main() {
 		return
 	}
 
-	texts, err := LoadTextsFromFile(*textsFilePath)
+	textTable, err := texts.FromFile(*textsFilePath)
 	check(err)
 
 	var w io.Writer = os.Stdout
@@ -94,28 +96,28 @@ func main() {
 	for _, inputFile := range inputFiles {
 		if *replaceSource {
 			buf := &bytes.Buffer{}
-			err = processFile(buf, inputFile, texts)
+			err = processFile(buf, inputFile, textTable)
 			check(err)
 			err = ioutil.WriteFile(inputFile, buf.Bytes(), 0644)
 			check(err)
 		} else {
-			err := processFile(w, inputFile, texts)
+			err := processFile(w, inputFile, textTable)
 			check(err)
 		}
 	}
 	if len(inputFiles) == 0 {
-		err := texts.InsertTexts(w, os.Stdin)
+		err := textTable.ResolveTexts(w, os.Stdin)
 		check(err)
 	}
 }
 
-func processFile(w io.Writer, path string, texts TextTable) error {
+func processFile(w io.Writer, path string, textTable texts.Table) error {
 	file, err := os.Open(path)
 	if err != nil {
 		return fmt.Errorf("could not open source file: %w", err)
 	}
 	defer file.Close()
-	return texts.InsertTexts(w, file)
+	return textTable.ResolveTexts(w, file)
 }
 
 func check(err error) {

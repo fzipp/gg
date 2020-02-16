@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package main
+package texts
 
 import (
 	"bufio"
@@ -11,24 +11,25 @@ import (
 	"io"
 	"os"
 	"strconv"
+	"strings"
 )
 
-type TextTable map[int]string
+type Table map[int]string
 
-func LoadTextsFromFile(path string) (TextTable, error) {
+func FromFile(path string) (Table, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("could not open text table file: %w", err)
 	}
 	defer file.Close()
-	return LoadTexts(file)
+	return From(file)
 }
 
-func LoadTexts(r io.Reader) (TextTable, error) {
+func From(r io.Reader) (Table, error) {
 	csvReader := csv.NewReader(r)
 	csvReader.Comma = '\t'
 	csvReader.LazyQuotes = true
-	texts := make(TextTable)
+	texts := make(Table)
 	lineNumber := 0
 	for {
 		lineNumber++
@@ -54,7 +55,7 @@ func LoadTexts(r io.Reader) (TextTable, error) {
 
 const idMarker = '@'
 
-func (tt TextTable) InsertTexts(w io.Writer, r io.Reader) error {
+func (t Table) ResolveTexts(w io.Writer, r io.Reader) error {
 	withinTextID := false
 	var bufferedTextID []byte
 	br := bufio.NewReader(r)
@@ -81,7 +82,7 @@ func (tt TextTable) InsertTexts(w io.Writer, r io.Reader) error {
 				if err != nil {
 					return fmt.Errorf("could not parse text ID: %w", err)
 				}
-				_, err = w.Write([]byte(tt[textID]))
+				_, err = w.Write([]byte(t[textID]))
 				if err != nil {
 					return fmt.Errorf("could not write replacement text to output: %w", err)
 				}
@@ -99,6 +100,15 @@ func (tt TextTable) InsertTexts(w io.Writer, r io.Reader) error {
 		}
 	}
 	return nil
+}
+
+func (t Table) ResolveTextsString(s string) (string, error) {
+	var sb strings.Builder
+	err := t.ResolveTexts(&sb, strings.NewReader(s))
+	if err != nil {
+		return s, fmt.Errorf("could not resolve texts in string: %w", err)
+	}
+	return sb.String(), nil
 }
 
 func isNumeric(b byte) bool {
