@@ -8,7 +8,7 @@ import (
 
 var testKey = DefaultKey
 
-func TestTranscoderRoundTrip(t *testing.T) {
+func TestTransformerRoundTrip(t *testing.T) {
 	original := []byte("secret")
 	size := len(original)
 	enc := &encoder{xorSum: byte(size), key: testKey}
