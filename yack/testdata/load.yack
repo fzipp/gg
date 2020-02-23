@@ -1,0 +1,33 @@
+; This is a test file
+
+:init
+!g.test_var <- YES
+!testFunc("test")
+
+:start
+-> main
+
+:main
+!testFunc()
+1 "@30001" -> test_label1 [once]
+2 "@30002" -> test_label2 [showonce] [g.test_var == NO]
+2 "@30003" -> test_label3 [g.test_var == YES]
+3 "@30004" -> done
+-> exit
+
+:test_label1
+testactor2: "@40001"
+testactor: "@40002"
+-> main
+
+:test_label2
+testactor2: "@40003"
+-> main
+
+:test_label3
+testactor2: "@40004" [test_var]
+testactor2: "@40004" [!test_var]
+-> main
+
+:done
+testactor: "@40005"

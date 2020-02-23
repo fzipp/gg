@@ -25,9 +25,11 @@ go get github.com/fzipp/gg/cmd/...
 
 ## Go packages
 
-* [ggpack](https://pkg.go.dev/github.com/fzipp/gg/ggpack)
-* [ggdict](https://pkg.go.dev/github.com/fzipp/gg/ggdict)
-* [texts](https://pkg.go.dev/github.com/fzipp/gg/texts)
+* [ggpack](https://pkg.go.dev/github.com/fzipp/gg/ggpack) Read and write ggpack files.
+* [ggdict](https://pkg.go.dev/github.com/fzipp/gg/ggdict) Read and write the GGDictionary format.
+* [texts](https://pkg.go.dev/github.com/fzipp/gg/texts) Replace text ID placeholders with texts.
+* [yack](https://pkg.go.dev/github.com/fzipp/gg/yack) Parse yack dialog files.
+* [texturepacker](https://pkg.go.dev/github.com/fzipp/texturepacker) Read sprite sheet information from TexturePacker's JSON (Hash) export format.
 
 ## Related Work
 
