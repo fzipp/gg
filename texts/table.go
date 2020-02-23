@@ -56,50 +56,55 @@ func From(r io.Reader) (Table, error) {
 const idMarker = '@'
 
 func (t Table) ResolveTexts(w io.Writer, r io.Reader) error {
+	eof := false
 	withinTextID := false
-	var bufferedTextID []byte
+	var bufferedTextID strings.Builder
 	br := bufio.NewReader(r)
+	bw := bufio.NewWriter(w)
 	for {
-		b, err := br.ReadByte()
+		ch, _, err := br.ReadRune()
 		if err == io.EOF {
-			break
+			eof = true
 		}
-		if err != nil {
+		if err != nil && !eof {
 			return fmt.Errorf("could not read from input: %w", err)
 		}
-		if b == idMarker {
+		if ch == idMarker {
 			withinTextID = true
-			bufferedTextID = bufferedTextID[:0]
+			bufferedTextID.Reset()
 			continue
 		}
 		if withinTextID {
-			if isNumeric(b) {
-				bufferedTextID = append(bufferedTextID, b)
+			if isNumeric(ch) {
+				bufferedTextID.WriteRune(ch)
 				continue
 			}
-			if len(bufferedTextID) > 0 {
-				textID, err := strconv.Atoi(string(bufferedTextID))
+			if bufferedTextID.Len() > 0 {
+				textID, err := strconv.Atoi(bufferedTextID.String())
 				if err != nil {
 					return fmt.Errorf("could not parse text ID: %w", err)
 				}
-				_, err = w.Write([]byte(t[textID]))
+				_, err = bw.WriteString(t[textID])
 				if err != nil {
 					return fmt.Errorf("could not write replacement text to output: %w", err)
 				}
 			} else {
-				_, err := w.Write([]byte{idMarker})
+				_, err := bw.WriteRune(idMarker)
 				if err != nil {
-					return  fmt.Errorf("could not write text ID marker to output: %w", err)
+					return fmt.Errorf("could not write text ID marker to output: %w", err)
 				}
 			}
 			withinTextID = false
 		}
-		_, err = w.Write([]byte{b})
+		if eof {
+			break
+		}
+		_, err = bw.WriteRune(ch)
 		if err != nil {
 			return fmt.Errorf("could not write to output: %w", err)
 		}
 	}
-	return nil
+	return bw.Flush()
 }
 
 func (t Table) ResolveTextsString(s string) (string, error) {
@@ -111,6 +116,6 @@ func (t Table) ResolveTextsString(s string) (string, error) {
 	return sb.String(), nil
 }
 
-func isNumeric(b byte) bool {
-	return b >= '0' && b <= '9'
+func isNumeric(r rune) bool {
+	return r >= '0' && r <= '9'
 }
