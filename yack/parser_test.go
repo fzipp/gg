@@ -2,13 +2,14 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package yack
+package yack_test
 
 import (
 	"reflect"
 	"strings"
 	"testing"
 
+	"github.com/fzipp/gg/yack"
 	"github.com/fzipp/gg/yack/condition"
 	"github.com/fzipp/gg/yack/stmt"
 )
@@ -66,7 +67,7 @@ testactor: "@20003"`,
 		},
 	}
 	for _, tt := range tests {
-		dlg, err := Parse("test", strings.NewReader(tt.src))
+		dlg, err := yack.Parse("test", strings.NewReader(tt.src))
 		if err != nil {
 			t.Errorf("parsing of dialog %q returned error: %s", tt.src, err)
 			continue
@@ -80,7 +81,7 @@ testactor: "@20003"`,
 func TestParseStatement(t *testing.T) {
 	tests := []struct {
 		line string
-		want Statement
+		want yack.Statement
 	}{
 		{"-> exit", stmt.Goto{Label: "exit"}},
 		{"-> main", stmt.Goto{Label: "main"}},
@@ -149,7 +150,7 @@ func TestParseStatement(t *testing.T) {
 		{`testactor: "This is a test." -> main`, stmt.Say{Actor: "testactor", Text: "This is a test.", OptionalGotoLabel: "main"}},
 	}
 	for _, tt := range tests {
-		dlg, err := Parse("test", strings.NewReader(tt.line))
+		dlg, err := yack.Parse("test", strings.NewReader(tt.line))
 		if err != nil {
 			t.Errorf("parsing of statement %q returned error: %s", tt.line, err)
 			continue
@@ -164,7 +165,7 @@ func TestParseStatement(t *testing.T) {
 func TestParseCondition(t *testing.T) {
 	tests := []struct {
 		line string
-		want Condition
+		want yack.Condition
 	}{
 		{"! [once]", &condition.Once{}},
 		{"! [showonce]", &condition.ShowOnce{}},
@@ -186,7 +187,7 @@ func TestParseCondition(t *testing.T) {
 		{"! [!_test_var && !(testFunction1(test2) || testFunction2(test2))]", &condition.Code{Code: "!_test_var && !(testFunction1(test2) || testFunction2(test2))"}},
 	}
 	for _, tt := range tests {
-		dlg, err := Parse("test", strings.NewReader(tt.line))
+		dlg, err := yack.Parse("test", strings.NewReader(tt.line))
 		if err != nil {
 			t.Errorf("parsing of condition %q returned error: %s", tt.line, err)
 			continue
@@ -211,7 +212,7 @@ func TestParseErrors(t *testing.T) {
 		{"pause 2)", `test:1:8: expected "\n", found ")"`},
 	}
 	for _, tt := range tests {
-		_, err := Parse("test", strings.NewReader(tt.src))
+		_, err := yack.Parse("test", strings.NewReader(tt.src))
 		if err == nil {
 			t.Errorf("no error on parsing %q, but expected one", tt.src)
 			continue
@@ -225,7 +226,7 @@ func TestParseErrors(t *testing.T) {
 func TestComments(t *testing.T) {
 	tests := []struct {
 		line string
-		want Statement
+		want yack.Statement
 	}{
 		{"!", stmt.Execute{Code: ""}},
 		{"!;", stmt.Execute{Code: ""}},
@@ -240,7 +241,7 @@ func TestComments(t *testing.T) {
 		{`!abc def ";\";This\" is not a comment"; This is a comment`, stmt.Execute{Code: `abc def ";\";This\" is not a comment"`}},
 	}
 	for _, tt := range tests {
-		dlg, err := Parse("test", strings.NewReader(tt.line))
+		dlg, err := yack.Parse("test", strings.NewReader(tt.line))
 		if err != nil {
 			t.Errorf("parsing of statement with comment %q returned error: %s", tt.line, err)
 			continue
@@ -254,26 +255,26 @@ func TestComments(t *testing.T) {
 
 func TestLoad(t *testing.T) {
 	path := "testdata/load.yack"
-	want := &Dialog{
-		Statements: []ConditionalStatement{
+	want := &yack.Dialog{
+		Statements: []yack.ConditionalStatement{
 			{Statement: stmt.Execute{Code: "g.test_var <- YES"}},
 			{Statement: stmt.Execute{Code: `testFunc("test")`}},
 			{Statement: stmt.Goto{Label: "main"}},
 			{Statement: stmt.Execute{Code: "testFunc()"}},
 			{
 				Statement:  stmt.Choice{Index: 1, Text: "@30001", GotoLabel: "test_label1"},
-				Conditions: Conditions{&condition.Once{}},
+				Conditions: yack.Conditions{&condition.Once{}},
 			},
 			{
 				Statement: stmt.Choice{Index: 2, Text: "@30002", GotoLabel: "test_label2"},
-				Conditions: Conditions{
+				Conditions: yack.Conditions{
 					&condition.ShowOnce{},
 					&condition.Code{Code: "g.test_var == NO"},
 				},
 			},
 			{
 				Statement:  stmt.Choice{Index: 2, Text: "@30003", GotoLabel: "test_label3"},
-				Conditions: Conditions{&condition.Code{Code: "g.test_var == YES"}},
+				Conditions: yack.Conditions{&condition.Code{Code: "g.test_var == YES"}},
 			},
 			{Statement: stmt.Choice{Index: 3, Text: "@30004", GotoLabel: "done"}},
 			{Statement: stmt.Goto{Label: "exit"}},
@@ -284,11 +285,11 @@ func TestLoad(t *testing.T) {
 			{Statement: stmt.Goto{Label: "main"}},
 			{
 				Statement:  stmt.Say{Actor: "testactor2", Text: "@40004", OptionalGotoLabel: ""},
-				Conditions: Conditions{&condition.Code{Code: "test_var"}},
+				Conditions: yack.Conditions{&condition.Code{Code: "test_var"}},
 			},
 			{
 				Statement:  stmt.Say{Actor: "testactor2", Text: "@40004", OptionalGotoLabel: ""},
-				Conditions: Conditions{&condition.Code{Code: "!test_var"}},
+				Conditions: yack.Conditions{&condition.Code{Code: "!test_var"}},
 			},
 			{Statement: stmt.Goto{Label: "main"}},
 			{Statement: stmt.Say{Actor: "testactor", Text: "@40005", OptionalGotoLabel: ""}},
@@ -303,7 +304,7 @@ func TestLoad(t *testing.T) {
 			"done":        17,
 		},
 	}
-	dialog, err := Load(path)
+	dialog, err := yack.Load(path)
 	if err != nil {
 		t.Fatalf("loading of yack file %q returned error: %s", path, err)
 	}
@@ -313,14 +314,14 @@ func TestLoad(t *testing.T) {
 }
 
 func TestLoadError(t *testing.T) {
-	tests := []struct{
+	tests := []struct {
 		path string
 	}{
 		{"testdata/syntaxerror.yack"},
 		{"testdata/doesnotexist.yack"},
 	}
 	for _, tt := range tests {
-		_, err := Load(tt.path)
+		_, err := yack.Load(tt.path)
 		if err == nil {
 			t.Fatalf("no error on parsing file %q, but expected one", tt.path)
 		}
