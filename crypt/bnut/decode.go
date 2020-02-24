@@ -20,7 +20,7 @@ func newDecoder(expectedSize int64) transform.Transformer {
 
 func (d *decoder) Transform(dst, src []byte) {
 	for i := 0; i < len(src); i++ {
-		dst[i] ^= cryptKey[d.cursor]
+		dst[i] = src[i] ^ cryptKey[d.cursor]
 		d.cursor = (d.cursor + 1) % len(cryptKey)
 	}
 }

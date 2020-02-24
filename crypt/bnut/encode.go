@@ -20,8 +20,8 @@ func newEncoder(expectedSize int64) transform.Transformer {
 
 func (e *encoder) Transform(dst, src []byte) {
 	for i := 0; i < len(src); i++ {
+		dst[i] = src[i] ^ cryptKey[e.cursor]
 		e.cursor = (e.cursor + 1) % len(cryptKey)
-		dst[i] ^= cryptKey[e.cursor]
 	}
 }
 

@@ -4,9 +4,7 @@
 
 package transform
 
-import (
-	"io"
-)
+import "io"
 
 type writer struct {
 	writer      io.Writer

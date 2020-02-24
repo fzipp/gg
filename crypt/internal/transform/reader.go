@@ -4,9 +4,7 @@
 
 package transform
 
-import (
-	"io"
-)
+import "io"
 
 type reader struct {
 	reader      io.Reader
