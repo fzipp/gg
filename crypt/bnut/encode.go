@@ -10,21 +10,21 @@ import (
 	"github.com/fzipp/gg/crypt/internal/transform"
 )
 
-type encoder struct {
+type transformer struct {
 	cursor int
 }
 
-func newEncoder(expectedSize int64) transform.Transformer {
-	return &encoder{cursor: int(expectedSize & 0xff)}
+func newTransformer(expectedSize int64) transform.Transformer {
+	return &transformer{cursor: int(expectedSize & 0xff)}
 }
 
-func (e *encoder) Transform(dst, src []byte) {
+func (t *transformer) Transform(dst, src []byte) {
 	for i := 0; i < len(src); i++ {
-		dst[i] = src[i] ^ cryptKey[e.cursor]
-		e.cursor = (e.cursor + 1) % len(cryptKey)
+		dst[i] = src[i] ^ cryptKey[t.cursor]
+		t.cursor = (t.cursor + 1) % len(cryptKey)
 	}
 }
 
 func EncodingWriter(w io.Writer, expectedSize int64) io.Writer {
-	return transform.NewWriter(w, newEncoder(expectedSize))
+	return transform.NewWriter(w, newTransformer(expectedSize))
 }
