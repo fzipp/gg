@@ -5,6 +5,7 @@
 package yack
 
 import (
+	"sort"
 	"strings"
 
 	"github.com/fzipp/gg/yack/condition"
@@ -21,18 +22,36 @@ type Dialog struct {
 
 // String formats the dialog in yack syntax.
 func (d *Dialog) String() string {
-	labels := make(map[int]string)
-	for label, i := range d.LabelIndex {
-		labels[i] = label
-	}
 	var sb strings.Builder
+	ll := d.buildLabelsLookup()
 	for i, statement := range d.Statements {
-		if label, ok := labels[i]; ok {
-			sb.WriteString("\n:" + label + "\n")
-		}
+		ll.writeLabels(&sb, i)
 		sb.WriteString(statement.String() + "\n")
 	}
+	ll.writeLabels(&sb, len(d.Statements))
 	return sb.String()
+}
+
+func (d *Dialog) buildLabelsLookup() labelsLookup {
+	ll := make(labelsLookup)
+	for label, i := range d.LabelIndex {
+		ll[i] = append(ll[i], label)
+	}
+	return ll
+}
+
+type labelsLookup map[int][]string
+
+func (ll labelsLookup) writeLabels(sb *strings.Builder, index int) {
+	if labels, ok := ll[index]; ok {
+		sort.Strings(labels)
+		for i, label := range labels {
+			if i == 0 {
+				sb.WriteRune('\n')
+			}
+			sb.WriteString(":" + label + "\n")
+		}
+	}
 }
 
 // A ConditionalStatement is a statement guarded by zero or more conditions.
@@ -49,7 +68,7 @@ func (c ConditionalStatement) String() string {
 	if cs == "" {
 		return s
 	}
-	return  s + " " + cs
+	return s + " " + cs
 }
 
 // Statement is an executable statement in a dialog script.
