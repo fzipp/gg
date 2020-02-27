@@ -12,8 +12,20 @@ import (
 	"github.com/fzipp/gg/crypt/bnut"
 )
 
+var testBnutScript = `__<-"This is a test input."
+
+TestRoom <-
+{
+ background = "TestRoom"
+
+ enter = function()
+ {
+ }
+}
+`
+
 func TestWriterReaderRoundTrip(t *testing.T) {
-	original := []byte("This is a test.")
+	original := []byte(testBnutScript)
 	encodedBuf := &bytes.Buffer{}
 	_, err := bnut.EncodingWriter(encodedBuf, int64(len(original))).Write(original)
 	if err != nil {
