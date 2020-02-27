@@ -13,7 +13,7 @@ type Key struct {
 // These keys differ slightly at MagicBytes[5] (0x5B vs. 0x56) and regarding
 // the multiplier (0x6D vs. 0xAD). This is reflected in the names (e.g. "56ad")
 // by which they can be referenced.
-var KnownKeys = map[string]*Key {
+var KnownKeys = map[string]*Key{
 	"5b6d": {
 		MagicBytes: [...]byte{
 			0x4F, 0xD0, 0xA0, 0xAC, 0x4A, 0x5B, 0xB9, 0xE5,

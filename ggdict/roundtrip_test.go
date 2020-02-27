@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-func TestRoundtrip(t *testing.T) {
+func TestRoundTrip(t *testing.T) {
 	dict := map[string]interface{}{
 		"name":    "Test",
 		"count":   4,
@@ -27,6 +27,6 @@ func TestRoundtrip(t *testing.T) {
 		return
 	}
 	if !reflect.DeepEqual(dict, newDict) {
-		t.Errorf("Marshal/unmarshal roundtrip resulted in %#v, want: %#v", newDict, dict)
+		t.Errorf("Marshal/unmarshal round trip resulted in %#v, want: %#v", newDict, dict)
 	}
 }

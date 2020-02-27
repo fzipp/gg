@@ -21,7 +21,7 @@ func Unmarshal(data []byte) (map[string]interface{}, error) {
 
 	offsetIndexStart := u.readRawInt()
 	ou := &unmarshaller{
-		buf: data,
+		buf:    data,
 		offset: offsetIndexStart,
 	}
 	offsetIndex, err := ou.readValue()
@@ -83,7 +83,7 @@ func (u *unmarshaller) readDictionary() (map[string]interface{}, error) {
 		key := u.readString()
 		value, err := u.readValue()
 		if err != nil {
-			return nil, fmt.Errorf("could not read dictionary value for key \"%s\": %w", key, err)
+			return nil, fmt.Errorf("could not read dictionary value for key %q: %w", key, err)
 		}
 		dictionary[key] = value
 	}
