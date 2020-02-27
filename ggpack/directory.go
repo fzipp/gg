@@ -34,31 +34,33 @@ func readDirectory(buf []byte) (directory, error) {
 	if err != nil {
 		return nil, fmt.Errorf("could not read directory: %w", err)
 	}
+	return directoryFrom(directoryDict)
+}
 
-	files, ok := directoryDict[keyFiles].([]interface{})
+func directoryFrom(dict map[string]interface{}) (directory, error) {
+	files, ok := dict[keyFiles].([]interface{})
 	if !ok {
-		return nil, fmt.Errorf("\"%s\" is not an array", keyFiles)
+		return nil, fmt.Errorf("%q is not an array", keyFiles)
 	}
 	directory := make(directory, len(files))
 	for _, fileEntry := range files {
 		entryDict := fileEntry.(map[string]interface{})
 		filename, ok := entryDict[keyFilename].(string)
 		if !ok {
-			return nil, fmt.Errorf("\"%s\" is not a string", keyFilename)
+			return nil, fmt.Errorf("%q is not a string", keyFilename)
 		}
 		offset, ok := entryDict[keyOffset].(int)
 		if !ok {
-			return nil, fmt.Errorf("\"%s\" is not an int", keyOffset)
+			return nil, fmt.Errorf("%q is not an int", keyOffset)
 		}
 		size, ok := entryDict[keySize].(int)
 		if !ok {
-			return nil, fmt.Errorf("\"%s\" is not an int", keySize)
+			return nil, fmt.Errorf("%q is not an int", keySize)
 		}
 		directory[filename] = entry{
 			Offset: int64(offset),
 			Size:   int64(size),
 		}
 	}
-
 	return directory, nil
 }
