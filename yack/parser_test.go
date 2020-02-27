@@ -117,7 +117,7 @@ func TestParseStatement(t *testing.T) {
 		{"waitfor testactor2", stmt.WaitFor{Actor: "testactor2"}},
 		{"waitfor currentActor", stmt.WaitFor{Actor: "currentActor"}},
 
-		{"waitwhile Test.testMethod()", stmt.WaitWhile{Code: "Test.testMethod()"}},
+		{"waitwhile Test.testMethod()", stmt.WaitWhile{CodeCondition: "Test.testMethod()"}},
 
 		{"parrot NO", stmt.Parrot{Enabled: false}},
 		{"parrot no", stmt.Parrot{Enabled: false}},

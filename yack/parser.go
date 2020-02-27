@@ -141,7 +141,7 @@ func (p *parser) parseStatement() Statement {
 		case "waitwhile":
 			p.tok = p.scanner.Next()
 			code := p.parseCode()
-			return stmt.WaitWhile{Code: code}
+			return stmt.WaitWhile{CodeCondition: code}
 		case "parrot":
 			p.next()
 			enabled := p.parseBool()

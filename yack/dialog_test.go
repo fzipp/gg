@@ -24,7 +24,7 @@ var testStatementsDialog = &yack.Dialog{
 		{Statement: stmt.Choice{Index: 1, Text: "lorem ipsum", GotoLabel: "more"}},
 		{Statement: stmt.Choice{Index: 2, Text: "bye", GotoLabel: "done"}},
 		{Statement: stmt.WaitFor{Actor: "testactor"}},
-		{Statement: stmt.WaitWhile{Code: "g.test_var == NO"}},
+		{Statement: stmt.WaitWhile{CodeCondition: "g.test_var == NO"}},
 		{Statement: stmt.Parrot{Enabled: false}},
 		{Statement: stmt.Parrot{Enabled: true}},
 		{Statement: stmt.Dialog{Actor: "testactor2"}},

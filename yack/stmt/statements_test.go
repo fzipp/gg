@@ -26,7 +26,7 @@ func TestString(t *testing.T) {
 		{stmt.Parrot{Enabled: false}, "parrot NO"},
 		{stmt.WaitFor{Actor: "testactor"}, "waitfor testactor"},
 		{stmt.WaitFor{}, "waitfor"},
-		{stmt.WaitWhile{Code: "g.test_var < 5"}, "waitwhile g.test_var < 5"},
+		{stmt.WaitWhile{CodeCondition: "g.test_var < 5"}, "waitwhile g.test_var < 5"},
 		{stmt.Dialog{Actor: "testactor2"}, "dialog testactor2"},
 		{stmt.Override{Label: "test_label"}, "override test_label"},
 		{stmt.AllowObjects{Allow: true}, "allowobjects YES"},
@@ -55,7 +55,7 @@ func TestExecute(t *testing.T) {
 		stmt.Parrot{Enabled: false},
 		stmt.WaitFor{Actor: "testactor"},
 		stmt.WaitFor{},
-		stmt.WaitWhile{Code: "g.test_var < 5"},
+		stmt.WaitWhile{CodeCondition: "g.test_var < 5"},
 		stmt.Dialog{Actor: "testactor2"},
 		stmt.Override{Label: "test_label"},
 		stmt.AllowObjects{Allow: true},
@@ -120,8 +120,8 @@ func (ctx *tracingTestContext) WaitFor(actor string) {
 	ctx.callTrace.WriteString(fmt.Sprintf("WaitFor(%q)\n", actor))
 }
 
-func (ctx *tracingTestContext) WaitWhile(code string) {
-	ctx.callTrace.WriteString(fmt.Sprintf("WaitWhile(%q)\n", code))
+func (ctx *tracingTestContext) WaitWhile(codeCondition string) {
+	ctx.callTrace.WriteString(fmt.Sprintf("WaitWhile(%q)\n", codeCondition))
 }
 
 func (ctx *tracingTestContext) Dialog(actor string) {

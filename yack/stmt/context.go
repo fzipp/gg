@@ -10,7 +10,7 @@ type Context interface {
 	Pause(seconds float64)
 	Parrot(enabled bool)
 	WaitFor(actor string)
-	WaitWhile(code string)
+	WaitWhile(codeCondition string)
 	Dialog(actor string)
 	Override(label string)
 	AllowObjects(allow bool)

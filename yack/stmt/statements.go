@@ -104,15 +104,15 @@ func (s WaitFor) String() string {
 }
 
 type WaitWhile struct {
-	Code string
+	CodeCondition string
 }
 
 func (s WaitWhile) Execute(ctx Context) {
-	ctx.WaitWhile(s.Code)
+	ctx.WaitWhile(s.CodeCondition)
 }
 
 func (s WaitWhile) String() string {
-	return "waitwhile " + s.Code
+	return "waitwhile " + s.CodeCondition
 }
 
 type Parrot struct {
