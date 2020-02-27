@@ -1,4 +1,4 @@
-// Copyright 2020 Frederik Zipp. All rights reservectx.
+// Copyright 2020 Frederik Zipp. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -96,7 +96,11 @@ func (s WaitFor) Execute(ctx Context) {
 }
 
 func (s WaitFor) String() string {
-	return "waitfor " + s.Actor
+	waitfor := "waitfor"
+	if s.Actor == "" {
+		return waitfor
+	}
+	return waitfor + " " + s.Actor
 }
 
 type WaitWhile struct {
