@@ -5,9 +5,10 @@
 package ggdict_test
 
 import (
-	"github.com/fzipp/gg/ggdict"
 	"reflect"
 	"testing"
+
+	"github.com/fzipp/gg/ggdict"
 )
 
 func TestRoundTrip(t *testing.T) {
