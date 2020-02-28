@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// Package stmt defines statements of the yack language.
 package stmt
 
 import "strconv"

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package yack implements a parser for yack dialog trees.
+// Package yack implements a parser and runner for yack dialogs.
 //
 // The EBNF grammar for yack files:
 //

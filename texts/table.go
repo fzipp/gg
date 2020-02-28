@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// Package texts replaces ID placeholders like @12345 with actual texts
+// from a text table.
 package texts
 
 import (

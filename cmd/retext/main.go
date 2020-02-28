@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Replaces ID placeholders like @12345 in files with texts from a text
-// table file in TSV (tab-separated values) format referenced via these IDs.
+// A tool to replace ID placeholders like @12345 with actual texts from a text
+// table file in TSV (tab-separated values) format referenced by these IDs.
 //
 // Usage:
 //     retext -t text_table_file [-w] [path ...]
@@ -50,8 +50,8 @@ import (
 )
 
 func usage() {
-	fail(`Replaces ID placeholders like @12345 in files with texts from a text
-table file in TSV (tab-separated values) format referenced via these IDs.
+	fail(`Replaces ID placeholders like @12345 with actual texts from a text
+table file in TSV (tab-separated values) format referenced by these IDs.
 
 Usage:
     retext -t text_table_file [-o output_file | -w] [path ...]

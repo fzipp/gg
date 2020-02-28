@@ -22,6 +22,7 @@
 // Examples:
 //     ggdict -to-json Example.wimpy > Example.wimpy.json
 //     ggdict -from-json Example.wimpy.json > Example.wimpy
+//     ggdict -to-json ExampleAnimation.json > ExampleAnimation.really.json
 package main
 
 import (
@@ -37,8 +38,7 @@ import (
 func usage() {
 	fail(`A tool to convert back and forth between the GGDictionary format and JSON.
 
-The GGDictionary format is used by the Thimbleweed Park point-and-click
-adventure game engine. It encodes a key-value data structure like JSON, but as
+The GGDictionary format encodes a key-value data structure like JSON, but as
 a binary format. For example, for Thimbleweed Park *.wimpy and *Animation.json
 files are stored in this format within a "ggpack" file.
 
@@ -54,7 +54,8 @@ Flags:
 
 Examples:
     ggdict -to-json Example.wimpy > Example.wimpy.json
-    ggdict -from-json Example.wimpy.json > Example.wimpy`)
+    ggdict -from-json Example.wimpy.json > Example.wimpy
+    ggdict -to-json ExampleAnimation.json > ExampleAnimation.really.json`)
 }
 
 func main() {

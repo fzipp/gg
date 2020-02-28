@@ -17,12 +17,12 @@
 //               Possible names: 56ad (default), 5bad, 566d, 5b6d
 //
 // Examples:
-//     ggpack -list "*" MyPackage.ggpack1
-//     ggpack -list "*.tsv" MyPackage.ggpack1
-//     ggpack -extract "ExampleSheet.png" MyPackage.ggpack1
-//     ggpack -extract "*.txt" MyPackage.ggpack1
-//     ggpack -extract "*" MyPackage.ggpack1
-//     ggpack -create "*" MyPackage.ggpack1`
+//     ggpack -list "*" ExamplePackage.ggpack1
+//     ggpack -list "*.tsv" ExamplePackage.ggpack1
+//     ggpack -extract "ExampleSheet.png" ExamplePackage.ggpack1
+//     ggpack -extract "*.txt" ExamplePackage.ggpack1
+//     ggpack -extract "*" ExamplePackage.ggpack1
+//     ggpack -create "*" ExamplePackage.ggpack1`
 package main
 
 import (
@@ -53,12 +53,12 @@ Flags:
               Possible names: 56ad (default), 5bad, 566d, 5b6d
 
 Examples:
-    ggpack -list "*" MyPackage.ggpack1
-    ggpack -list "*.tsv" MyPackage.ggpack1
-    ggpack -extract "ExampleSheet.png" MyPackage.ggpack1
-    ggpack -extract "*.txt" MyPackage.ggpack1
-    ggpack -extract "*" MyPackage.ggpack1
-    ggpack -create "*" MyPackage.ggpack1`)
+    ggpack -list "*" ExamplePackage.ggpack1
+    ggpack -list "*.tsv" ExamplePackage.ggpack1
+    ggpack -extract "ExampleSheet.png" ExamplePackage.ggpack1
+    ggpack -extract "*.txt" ExamplePackage.ggpack1
+    ggpack -extract "*" ExamplePackage.ggpack1
+    ggpack -create "*" ExamplePackage.ggpack1`)
 }
 
 func main() {

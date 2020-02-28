@@ -2,9 +2,10 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Re-indents Squirrel scripting language source code. This is not a full-blown
-// formatter like gofmt and does not aspire to be one. It was created for the
-// limited purpose to be used in the context of the other tools in this module.
+// A tool to re-indent Squirrel scripting language source code. This is not a
+// full-blown formatter like gofmt and does not aspire to be one. It was
+// created for the limited purpose to be used in the context of the other tools
+// in this module.
 //
 // Usage:
 //     nutfmt [-w] [path ...]
@@ -15,6 +16,7 @@
 // Examples:
 //     nutfmt Example.bnut | less
 //     nutfmt -w Example.bnut
+//     nutfmt -w *.bnut
 package main
 
 import (
@@ -38,7 +40,8 @@ Flags:
 
 Examples:
     nutfmt Example.bnut | less
-    nutfmt -w Example.bnut`)
+    nutfmt -w Example.bnut
+    nutfmt -w *.bnut`)
 }
 
 func main() {

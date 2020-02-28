@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// Package ggdict reads and writes the GGDictionary binary format.
 package ggdict
 
 import "encoding/binary"
