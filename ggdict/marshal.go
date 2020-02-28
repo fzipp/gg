@@ -5,6 +5,7 @@
 package ggdict
 
 import (
+	"sort"
 	"strconv"
 )
 
@@ -65,11 +66,18 @@ func (m *marshaller) writeNull() {
 }
 
 func (m *marshaller) writeDictionary(d map[string]interface{}) {
+	// sorted keys for reproducible results
+	keys := make([]string, 0, len(d))
+	for k := range d {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
 	m.writeTypeMarker(typeDictionary)
 	m.writeRawInt(len(d))
-	for k, v := range d {
+	for _, k := range keys {
 		m.writeKeyIndex(k)
-		m.writeValue(v)
+		m.writeValue(d[k])
 	}
 	m.writeTypeMarker(typeDictionary)
 }

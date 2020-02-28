@@ -15,11 +15,12 @@ func TestRoundTrip(t *testing.T) {
 	dict := map[string]interface{}{
 		"name":    "Test",
 		"count":   4,
-		"numbers": []interface{}{0.5, 3, 2.6, 1.4}, // TODO: allow []float64?
+		"numbers": []interface{}{0.5, 3, 2.6, 1.4},
 		"subobject": map[string]interface{}{
 			"title": "Test 2",
 			"id":    0,
 		},
+		"nothing": nil,
 	}
 	data := ggdict.Marshal(dict)
 	newDict, err := ggdict.Unmarshal(data)
@@ -28,6 +29,6 @@ func TestRoundTrip(t *testing.T) {
 		return
 	}
 	if !reflect.DeepEqual(dict, newDict) {
-		t.Errorf("Marshal/unmarshal round trip resulted in %#v, want: %#v", newDict, dict)
+		t.Errorf("Marshal/unmarshal round trip resulted in\n%#v, want:\n%#v", newDict, dict)
 	}
 }
