@@ -83,71 +83,71 @@ func TestParseStatement(t *testing.T) {
 		line string
 		want yack.Statement
 	}{
-		{"-> exit", stmt.Goto{Label: "exit"}},
-		{"-> main", stmt.Goto{Label: "main"}},
-		{"-> test_label", stmt.Goto{Label: "test_label"}},
-		{"-> testLabel", stmt.Goto{Label: "testLabel"}},
+		{"-> exit", &stmt.Goto{Label: "exit"}},
+		{"-> main", &stmt.Goto{Label: "main"}},
+		{"-> test_label", &stmt.Goto{Label: "test_label"}},
+		{"-> testLabel", &stmt.Goto{Label: "testLabel"}},
 
-		{"!g.test_var <- NO", stmt.Execute{Code: "g.test_var <- NO"}},
-		{"!g.test_var = YES", stmt.Execute{Code: "g.test_var = YES"}},
-		{"!++g.test_var", stmt.Execute{Code: "++g.test_var"}},
-		{"!test_var <- g.test_vars[0]", stmt.Execute{Code: "test_var <- g.test_vars[0]"}},
-		{"!cameraFollow(currentActor)", stmt.Execute{Code: "cameraFollow(currentActor)"}},
-		{"!actorTalkOffset(currentActor, 200, -500)", stmt.Execute{Code: "actorTalkOffset(currentActor, 200, -500)"}},
-		{`!startActorIdle(testactor, 2.0, [ "a", "b", "c" ])`, stmt.Execute{Code: `startActorIdle(testactor, 2.0, [ "a", "b", "c" ])`}},
-		{`!testFunc("\n\"\\")`, stmt.Execute{Code: `testFunc("\n\"\\")`}},
+		{"!g.test_var <- NO", &stmt.Execute{Code: "g.test_var <- NO"}},
+		{"!g.test_var = YES", &stmt.Execute{Code: "g.test_var = YES"}},
+		{"!++g.test_var", &stmt.Execute{Code: "++g.test_var"}},
+		{"!test_var <- g.test_vars[0]", &stmt.Execute{Code: "test_var <- g.test_vars[0]"}},
+		{"!cameraFollow(currentActor)", &stmt.Execute{Code: "cameraFollow(currentActor)"}},
+		{"!actorTalkOffset(currentActor, 200, -500)", &stmt.Execute{Code: "actorTalkOffset(currentActor, 200, -500)"}},
+		{`!startActorIdle(testactor, 2.0, [ "a", "b", "c" ])`, &stmt.Execute{Code: `startActorIdle(testactor, 2.0, [ "a", "b", "c" ])`}},
+		{`!testFunc("\n\"\\")`, &stmt.Execute{Code: `testFunc("\n\"\\")`}},
 
-		{`1 "@12345" -> testLabel`, stmt.Choice{Index: 1, Text: "@12345", GotoLabel: "testLabel"}},
-		{`2 "@12346" -> done`, stmt.Choice{Index: 2, Text: "@12346", GotoLabel: "done"}},
-		{`3 $g.test_var -> testLabel`, stmt.Choice{Index: 3, Text: "$g.test_var", GotoLabel: "testLabel"}},
-		{`4 $_testVar1 -> testLabel`, stmt.Choice{Index: 4, Text: "$_testVar1", GotoLabel: "testLabel"}},
-		{`5 $Test.test_func_name(1) -> exit`, stmt.Choice{Index: 5, Text: "$Test.test_func_name(1)", GotoLabel: "exit"}},
-		{`6 "$Test.test_func_name(2)" -> label1`, stmt.Choice{Index: 6, Text: "$Test.test_func_name(2)", GotoLabel: "label1"}},
+		{`1 "@12345" -> testLabel`, &stmt.Choice{Index: 1, Text: "@12345", GotoLabel: "testLabel"}},
+		{`2 "@12346" -> done`, &stmt.Choice{Index: 2, Text: "@12346", GotoLabel: "done"}},
+		{`3 $g.test_var -> testLabel`, &stmt.Choice{Index: 3, Text: "$g.test_var", GotoLabel: "testLabel"}},
+		{`4 $_testVar1 -> testLabel`, &stmt.Choice{Index: 4, Text: "$_testVar1", GotoLabel: "testLabel"}},
+		{`5 $Test.test_func_name(1) -> exit`, &stmt.Choice{Index: 5, Text: "$Test.test_func_name(1)", GotoLabel: "exit"}},
+		{`6 "$Test.test_func_name(2)" -> label1`, &stmt.Choice{Index: 6, Text: "$Test.test_func_name(2)", GotoLabel: "label1"}},
 
-		{"shutup", stmt.ShutUp{}},
+		{"shutup", &stmt.ShutUp{}},
 
-		{"pause 0.5", stmt.Pause{Seconds: 0.5}},
-		{"pause 0.432", stmt.Pause{Seconds: 0.432}},
-		{"pause 1.0", stmt.Pause{Seconds: 1.0}},
-		{"pause 4", stmt.Pause{Seconds: 4}},
-		{"pause 8.0", stmt.Pause{Seconds: 8.0}},
+		{"pause 0.5", &stmt.Pause{Seconds: 0.5}},
+		{"pause 0.432", &stmt.Pause{Seconds: 0.432}},
+		{"pause 1.0", &stmt.Pause{Seconds: 1.0}},
+		{"pause 4", &stmt.Pause{Seconds: 4}},
+		{"pause 8.0", &stmt.Pause{Seconds: 8.0}},
 
-		{"waitfor", stmt.WaitFor{Actor: ""}},
-		{"waitfor testactor", stmt.WaitFor{Actor: "testactor"}},
-		{"waitfor testactor2", stmt.WaitFor{Actor: "testactor2"}},
-		{"waitfor currentActor", stmt.WaitFor{Actor: "currentActor"}},
+		{"waitfor", &stmt.WaitFor{Actor: ""}},
+		{"waitfor testactor", &stmt.WaitFor{Actor: "testactor"}},
+		{"waitfor testactor2", &stmt.WaitFor{Actor: "testactor2"}},
+		{"waitfor currentActor", &stmt.WaitFor{Actor: "currentActor"}},
 
-		{"waitwhile Test.testMethod()", stmt.WaitWhile{CodeCondition: "Test.testMethod()"}},
+		{"waitwhile Test.testMethod()", &stmt.WaitWhile{CodeCondition: "Test.testMethod()"}},
 
-		{"parrot NO", stmt.Parrot{Enabled: false}},
-		{"parrot no", stmt.Parrot{Enabled: false}},
-		{"parrot YES", stmt.Parrot{Enabled: true}},
-		{"parrot yes", stmt.Parrot{Enabled: true}},
+		{"parrot NO", &stmt.Parrot{Enabled: false}},
+		{"parrot no", &stmt.Parrot{Enabled: false}},
+		{"parrot YES", &stmt.Parrot{Enabled: true}},
+		{"parrot yes", &stmt.Parrot{Enabled: true}},
 
-		{"dialog testactor", stmt.Dialog{Actor: "testactor"}},
-		{"dialog testactor2", stmt.Dialog{Actor: "testactor2"}},
+		{"dialog testactor", &stmt.Dialog{Actor: "testactor"}},
+		{"dialog testactor2", &stmt.Dialog{Actor: "testactor2"}},
 
-		{"override done", stmt.Override{Label: "done"}},
-		{"override done2", stmt.Override{Label: "done2"}},
+		{"override done", &stmt.Override{Label: "done"}},
+		{"override done2", &stmt.Override{Label: "done2"}},
 
-		{"allowobjects YES", stmt.AllowObjects{Allow: true}},
-		{"allowobjects yes", stmt.AllowObjects{Allow: true}},
-		{"allowobjects NO", stmt.AllowObjects{Allow: false}},
-		{"allowobjects no", stmt.AllowObjects{Allow: false}},
+		{"allowobjects YES", &stmt.AllowObjects{Allow: true}},
+		{"allowobjects yes", &stmt.AllowObjects{Allow: true}},
+		{"allowobjects NO", &stmt.AllowObjects{Allow: false}},
+		{"allowobjects no", &stmt.AllowObjects{Allow: false}},
 
-		{"limit 3", stmt.Limit{N: 3}},
-		{"limit 5", stmt.Limit{N: 5}},
+		{"limit 3", &stmt.Limit{N: 3}},
+		{"limit 5", &stmt.Limit{N: 5}},
 
-		{`testactor: "@12345"`, stmt.Say{Actor: "testactor", Text: "@12345"}},
-		{`testactor2: "@43057"`, stmt.Say{Actor: "testactor2", Text: "@43057"}},
-		{`testactor: "This is a test."`, stmt.Say{Actor: "testactor", Text: "This is a test."}},
-		{`testactor: "This is a test with escaped \"double quotes\"."`, stmt.Say{Actor: "testactor", Text: "This is a test with escaped \"double quotes\"."}},
-		{`testactor: "This is a test with an escaped backslash: C:\\Program Files"`, stmt.Say{Actor: "testactor", Text: "This is a test with an escaped backslash: C:\\Program Files"}},
-		{`testactor: "$g.test_var"`, stmt.Say{Actor: "testactor", Text: "$g.test_var"}},
-		{`testactor: "^{test}"`, stmt.Say{Actor: "testactor", Text: "^{test}"}},
-		{`testactor: "^{test_name}"`, stmt.Say{Actor: "testactor", Text: "^{test_name}"}},
-		{`testactor: "@12345" -> done`, stmt.Say{Actor: "testactor", Text: "@12345", OptionalGotoLabel: "done"}},
-		{`testactor: "This is a test." -> main`, stmt.Say{Actor: "testactor", Text: "This is a test.", OptionalGotoLabel: "main"}},
+		{`testactor: "@12345"`, &stmt.Say{Actor: "testactor", Text: "@12345"}},
+		{`testactor2: "@43057"`, &stmt.Say{Actor: "testactor2", Text: "@43057"}},
+		{`testactor: "This is a test."`, &stmt.Say{Actor: "testactor", Text: "This is a test."}},
+		{`testactor: "This is a test with escaped \"double quotes\"."`, &stmt.Say{Actor: "testactor", Text: "This is a test with escaped \"double quotes\"."}},
+		{`testactor: "This is a test with an escaped backslash: C:\\Program Files"`, &stmt.Say{Actor: "testactor", Text: "This is a test with an escaped backslash: C:\\Program Files"}},
+		{`testactor: "$g.test_var"`, &stmt.Say{Actor: "testactor", Text: "$g.test_var"}},
+		{`testactor: "^{test}"`, &stmt.Say{Actor: "testactor", Text: "^{test}"}},
+		{`testactor: "^{test_name}"`, &stmt.Say{Actor: "testactor", Text: "^{test_name}"}},
+		{`testactor: "@12345" -> done`, &stmt.Say{Actor: "testactor", Text: "@12345", OptionalGotoLabel: "done"}},
+		{`testactor: "This is a test." -> main`, &stmt.Say{Actor: "testactor", Text: "This is a test.", OptionalGotoLabel: "main"}},
 	}
 	for _, tt := range tests {
 		dlg, err := yack.Parse("test", strings.NewReader(tt.line))
@@ -156,7 +156,7 @@ func TestParseStatement(t *testing.T) {
 			continue
 		}
 		s := dlg.Statements[0].Statement
-		if s != tt.want {
+		if !reflect.DeepEqual(s, tt.want) {
 			t.Errorf("parsed statement %q was: %#v, want: %#v", tt.line, s, tt.want)
 		}
 	}
@@ -228,17 +228,17 @@ func TestComments(t *testing.T) {
 		line string
 		want yack.Statement
 	}{
-		{"!", stmt.Execute{Code: ""}},
-		{"!;", stmt.Execute{Code: ""}},
-		{"!;This is a comment", stmt.Execute{Code: ""}},
-		{"!;; This is a comment", stmt.Execute{Code: ""}},
-		{"!abc def", stmt.Execute{Code: "abc def"}},
-		{"!abc def; This is a comment", stmt.Execute{Code: "abc def"}},
-		{"!abc def ; This is a comment", stmt.Execute{Code: "abc def"}},
-		{"!abc def;;This is a comment;;", stmt.Execute{Code: "abc def"}},
-		{`!abc def ";This is not a comment"`, stmt.Execute{Code: `abc def ";This is not a comment"`}},
-		{`!abc def ";This is not a comment"; This is a comment`, stmt.Execute{Code: `abc def ";This is not a comment"`}},
-		{`!abc def ";\";This\" is not a comment"; This is a comment`, stmt.Execute{Code: `abc def ";\";This\" is not a comment"`}},
+		{"!", &stmt.Execute{Code: ""}},
+		{"!;", &stmt.Execute{Code: ""}},
+		{"!;This is a comment", &stmt.Execute{Code: ""}},
+		{"!;; This is a comment", &stmt.Execute{Code: ""}},
+		{"!abc def", &stmt.Execute{Code: "abc def"}},
+		{"!abc def; This is a comment", &stmt.Execute{Code: "abc def"}},
+		{"!abc def ; This is a comment", &stmt.Execute{Code: "abc def"}},
+		{"!abc def;;This is a comment;;", &stmt.Execute{Code: "abc def"}},
+		{`!abc def ";This is not a comment"`, &stmt.Execute{Code: `abc def ";This is not a comment"`}},
+		{`!abc def ";This is not a comment"; This is a comment`, &stmt.Execute{Code: `abc def ";This is not a comment"`}},
+		{`!abc def ";\";This\" is not a comment"; This is a comment`, &stmt.Execute{Code: `abc def ";\";This\" is not a comment"`}},
 	}
 	for _, tt := range tests {
 		dlg, err := yack.Parse("test", strings.NewReader(tt.line))
@@ -247,7 +247,7 @@ func TestComments(t *testing.T) {
 			continue
 		}
 		s := dlg.Statements[0].Statement
-		if s != tt.want {
+		if !reflect.DeepEqual(s, tt.want) {
 			t.Errorf("parsed statement with comment %q was: %#v, want: %#v", tt.line, s, tt.want)
 		}
 	}
@@ -257,42 +257,42 @@ func TestLoad(t *testing.T) {
 	path := "testdata/load.yack"
 	want := &yack.Dialog{
 		Statements: []yack.ConditionalStatement{
-			{Statement: stmt.Execute{Code: "g.test_var <- YES"}},
-			{Statement: stmt.Execute{Code: `testFunc("test")`}},
-			{Statement: stmt.Goto{Label: "main"}},
-			{Statement: stmt.Execute{Code: "testFunc()"}},
+			{Statement: &stmt.Execute{Code: "g.test_var <- YES"}},
+			{Statement: &stmt.Execute{Code: `testFunc("test")`}},
+			{Statement: &stmt.Goto{Label: "main"}},
+			{Statement: &stmt.Execute{Code: "testFunc()"}},
 			{
-				Statement:  stmt.Choice{Index: 1, Text: "@30001", GotoLabel: "test_label1"},
+				Statement:  &stmt.Choice{Index: 1, Text: "@30001", GotoLabel: "test_label1"},
 				Conditions: yack.Conditions{&condition.Once{}},
 			},
 			{
-				Statement: stmt.Choice{Index: 2, Text: "@30002", GotoLabel: "test_label2"},
+				Statement: &stmt.Choice{Index: 2, Text: "@30002", GotoLabel: "test_label2"},
 				Conditions: yack.Conditions{
 					&condition.ShowOnce{},
 					&condition.Code{Code: "g.test_var == NO"},
 				},
 			},
 			{
-				Statement:  stmt.Choice{Index: 2, Text: "@30003", GotoLabel: "test_label3"},
+				Statement:  &stmt.Choice{Index: 2, Text: "@30003", GotoLabel: "test_label3"},
 				Conditions: yack.Conditions{&condition.Code{Code: "g.test_var == YES"}},
 			},
-			{Statement: stmt.Choice{Index: 3, Text: "@30004", GotoLabel: "done"}},
-			{Statement: stmt.Goto{Label: "exit"}},
-			{Statement: stmt.Say{Actor: "testactor2", Text: "@40001", OptionalGotoLabel: ""}},
-			{Statement: stmt.Say{Actor: "testactor", Text: "@40002", OptionalGotoLabel: ""}},
-			{Statement: stmt.Goto{Label: "main"}},
-			{Statement: stmt.Say{Actor: "testactor2", Text: "@40003", OptionalGotoLabel: ""}},
-			{Statement: stmt.Goto{Label: "main"}},
+			{Statement: &stmt.Choice{Index: 3, Text: "@30004", GotoLabel: "done"}},
+			{Statement: &stmt.Goto{Label: "exit"}},
+			{Statement: &stmt.Say{Actor: "testactor2", Text: "@40001", OptionalGotoLabel: ""}},
+			{Statement: &stmt.Say{Actor: "testactor", Text: "@40002", OptionalGotoLabel: ""}},
+			{Statement: &stmt.Goto{Label: "main"}},
+			{Statement: &stmt.Say{Actor: "testactor2", Text: "@40003", OptionalGotoLabel: ""}},
+			{Statement: &stmt.Goto{Label: "main"}},
 			{
-				Statement:  stmt.Say{Actor: "testactor2", Text: "@40004", OptionalGotoLabel: ""},
+				Statement:  &stmt.Say{Actor: "testactor2", Text: "@40004", OptionalGotoLabel: ""},
 				Conditions: yack.Conditions{&condition.Code{Code: "test_var"}},
 			},
 			{
-				Statement:  stmt.Say{Actor: "testactor2", Text: "@40004", OptionalGotoLabel: ""},
+				Statement:  &stmt.Say{Actor: "testactor2", Text: "@40004", OptionalGotoLabel: ""},
 				Conditions: yack.Conditions{&condition.Code{Code: "!test_var"}},
 			},
-			{Statement: stmt.Goto{Label: "main"}},
-			{Statement: stmt.Say{Actor: "testactor", Text: "@40005", OptionalGotoLabel: ""}},
+			{Statement: &stmt.Goto{Label: "main"}},
+			{Statement: &stmt.Say{Actor: "testactor", Text: "@40005", OptionalGotoLabel: ""}},
 		},
 		LabelIndex: map[string]int{
 			"init":        0,

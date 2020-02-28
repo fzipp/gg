@@ -94,10 +94,10 @@ func (p *parser) parseStatement() Statement {
 	case '!':
 		p.tok = p.scanner.Next()
 		code := p.parseCode()
-		return stmt.Execute{Code: code}
+		return &stmt.Execute{Code: code}
 	case '-':
 		label := p.parseGoto()
-		return stmt.Goto{Label: label}
+		return &stmt.Goto{Label: label}
 	case scanner.Int:
 		index := p.parseInt()
 		var text string
@@ -107,7 +107,7 @@ func (p *parser) parseStatement() Statement {
 			text = p.parseString()
 		}
 		gotoLabel := p.parseGoto()
-		return stmt.Choice{Index: index, Text: text, GotoLabel: gotoLabel}
+		return &stmt.Choice{Index: index, Text: text, GotoLabel: gotoLabel}
 	case scanner.Ident:
 		ident := p.lit
 		if p.scanner.Peek() == ':' {
@@ -118,7 +118,7 @@ func (p *parser) parseStatement() Statement {
 			if p.tok == '-' {
 				gotoLabel = p.parseGoto()
 			}
-			return stmt.Say{
+			return &stmt.Say{
 				Actor: ident, Text: text,
 				OptionalGotoLabel: gotoLabel,
 			}
@@ -126,42 +126,42 @@ func (p *parser) parseStatement() Statement {
 		switch ident {
 		case "shutup":
 			p.next()
-			return stmt.ShutUp{}
+			return &stmt.ShutUp{}
 		case "pause":
 			p.next()
 			seconds := p.parseFloat()
-			return stmt.Pause{Seconds: seconds}
+			return &stmt.Pause{Seconds: seconds}
 		case "waitfor":
 			p.next()
 			actor := ""
 			if p.tok == scanner.Ident {
 				actor = p.parseIdentifier()
 			}
-			return stmt.WaitFor{Actor: actor}
+			return &stmt.WaitFor{Actor: actor}
 		case "waitwhile":
 			p.tok = p.scanner.Next()
 			code := p.parseCode()
-			return stmt.WaitWhile{CodeCondition: code}
+			return &stmt.WaitWhile{CodeCondition: code}
 		case "parrot":
 			p.next()
 			enabled := p.parseBool()
-			return stmt.Parrot{Enabled: enabled}
+			return &stmt.Parrot{Enabled: enabled}
 		case "dialog":
 			p.next()
 			actor := p.parseIdentifier()
-			return stmt.Dialog{Actor: actor}
+			return &stmt.Dialog{Actor: actor}
 		case "override":
 			p.next()
 			label := p.parseIdentifier()
-			return stmt.Override{Label: label}
+			return &stmt.Override{Label: label}
 		case "allowobjects":
 			p.next()
 			allow := p.parseBool()
-			return stmt.AllowObjects{Allow: allow}
+			return &stmt.AllowObjects{Allow: allow}
 		case "limit":
 			p.next()
 			n := p.parseInt()
-			return stmt.Limit{N: n}
+			return &stmt.Limit{N: n}
 		default:
 			p.next()
 			p.error(p.pos, fmt.Sprintf("invalid command: %s", ident))
