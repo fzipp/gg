@@ -15,9 +15,11 @@ func Unmarshal(data []byte) (map[string]interface{}, error) {
 
 	signature := u.readRawInt()
 	if signature != formatSignature {
-		return nil, fmt.Errorf("invalid format signature: %x", signature)
+		return nil, fmt.Errorf("invalid format signature: %#x", signature)
 	}
-	_ = u.readRawInt() // Unused, as far as known
+
+	// Unused, as far as known. Always 1. Maybe format version?
+	_ = u.readRawInt()
 
 	offsetIndexStart := u.readRawInt()
 	ou := &unmarshaller{
