@@ -1,4 +1,4 @@
-module github.com/fzipp/yack
+module github.com/fzipp/gg/cmd/yack
 
 go 1.14
 
