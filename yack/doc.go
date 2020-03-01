@@ -14,7 +14,8 @@
 //
 //     ConditionalStatement = Statement { Condition } .
 //
-//     Condition = "[" ("once" | "showonce" | "onceever" | "temponce" | actor_name | Code) "]" .
+//     Condition = "[" ("once" | "showonce" | "onceever" | "showonceever" |
+//                      "temponce" | actor_name | Code) "]" .
 //
 //     Statement = SayStmt | GotoStmt | ExecuteStmt | ChoiceStmt | ShutUpStmt |
 //                 PauseStmt | WaitForStmt | WaitWhileStmt | ParrotStmt | DialogStmt |
