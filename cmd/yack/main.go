@@ -2,11 +2,12 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Runs yack dialogs on the console.
+// A tool to run yack dialogs on the console.
 //
 // The scripting language used for code statements and code conditions is not
 // Squirrel, but JavaScript. However, Squirrel's "<-" assignment operator can
-// be used and simply gets replaced with "=". YES and NO are also pre-defined.
+// be used and simply gets replaced with "=". YES and NO are also pre-defined
+// as true and false.
 //
 // Usage:
 //     yack [-t texts_file] [-l start_label] [-a start_actor] yack_file
@@ -42,7 +43,8 @@ func usage() {
 
 The scripting language used for code statements and code conditions is not
 Squirrel, but JavaScript. However, Squirrel's "<-" assignment operator can
-be used and simply gets replaced with "=". YES and NO are also pre-defined.
+be used and simply gets replaced with "=". YES and NO are also pre-defined
+as true and false.
 
 Flags:
     -t  A text table file in TSV (tab-separated values) format to look up
@@ -103,9 +105,8 @@ func run(dialog *yack.Dialog, startActor, startLabel string, debugMode bool) {
 	talk := &consoleTalk{debugMode: debugMode}
 	scripting := newJScripting()
 	scripting.verbose = debugMode
-	runner := yack.NewRunner(dialog, scripting, talk, startActor)
-	runner.Init()
-	choices := runner.StartAt(startLabel)
+	runner := yack.NewRunner(scripting, talk, startActor)
+	choices := runner.StartAt(dialog, startLabel)
 	for len(choices.Options) > 0 {
 		printChoices(choices, debugMode)
 		prompt := choices.Actor + "> "
