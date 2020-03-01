@@ -86,7 +86,11 @@ func (t Table) ResolveTexts(w io.Writer, r io.Reader) error {
 				if err != nil {
 					return fmt.Errorf("could not parse text ID: %w", err)
 				}
-				_, err = bw.WriteString(t[textID])
+				text, ok := t[textID]
+				if !ok {
+					text = string(idMarker) + bufferedTextID.String()
+				}
+				_, err = bw.WriteString(text)
 				if err != nil {
 					return fmt.Errorf("could not write replacement text to output: %w", err)
 				}

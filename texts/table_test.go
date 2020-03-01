@@ -34,6 +34,7 @@ func TestResolveTextsString(t *testing.T) {
 		{"@10001, @10002 @", "hello, world @"},
 		{"@10003: @10001, @10002", "This is a test: hello, world"},
 		{"@abc @def@", "@abc @def@"},
+		{"@90001", "@90001"},
 	}
 	for _, tt := range tests {
 		resolved, err := textTable.ResolveTextsString(tt.text)
