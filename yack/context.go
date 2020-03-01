@@ -25,10 +25,10 @@ type context struct {
 
 	choices map[int]*stmt.Choice
 
-	executed     map[Statement]bool
-	shown        map[Statement]bool
-	everExecuted map[Statement]bool
-	everShown    map[Statement]bool
+	executed     *statementSet
+	shown        *statementSet
+	everExecuted *statementSet
+	everShown    *statementSet
 }
 
 func newContext(s Scripting, t Talk, startActor string) *context {
@@ -39,10 +39,10 @@ func newContext(s Scripting, t Talk, startActor string) *context {
 		parrot:       true,
 		limit:        6,
 		choices:      make(map[int]*stmt.Choice),
-		executed:     make(map[Statement]bool),
-		shown:        make(map[Statement]bool),
-		everExecuted: make(map[Statement]bool),
-		everShown:    make(map[Statement]bool),
+		executed:     newStatementSet(),
+		shown:        newStatementSet(),
+		everExecuted: newStatementSet(),
+		everShown:    newStatementSet(),
 	}
 }
 
@@ -120,22 +120,22 @@ func (ctx *context) IsCodeTrue(code string) bool {
 
 func (ctx *context) IsOnce() bool {
 	s, ok := ctx.currentStatement()
-	return ok && !ctx.executed[s.Statement]
+	return ok && !ctx.executed.contains(s.Statement)
 }
 
 func (ctx *context) IsShowOnce() bool {
 	s, ok := ctx.currentStatement()
-	return ok && !ctx.shown[s.Statement]
+	return ok && !ctx.shown.contains(s.Statement)
 }
 
 func (ctx *context) IsOnceEver() bool {
 	s, ok := ctx.currentStatement()
-	return ok && !ctx.everExecuted[s.Statement]
+	return ok && !ctx.everExecuted.contains(s.Statement)
 }
 
 func (ctx *context) IsShowOnceEver() bool {
 	s, ok := ctx.currentStatement()
-	return ok && !ctx.everShown[s.Statement]
+	return ok && !ctx.everShown.contains(s.Statement)
 }
 
 func (ctx *context) IsTempOnce() bool {
@@ -145,8 +145,8 @@ func (ctx *context) IsTempOnce() bool {
 
 func (ctx *context) init(d *Dialog) {
 	ctx.dialog = d
-	ctx.shown = make(map[Statement]bool)
-	ctx.executed = make(map[Statement]bool)
+	ctx.shown.clear()
+	ctx.executed.clear()
 	ctx.runLabel(labelInit)
 }
 
@@ -186,8 +186,8 @@ func (ctx *context) run() *Choices {
 
 func (ctx *context) execute(statement Statement) {
 	statement.Execute(ctx)
-	ctx.executed[statement] = true
-	ctx.everExecuted[statement] = true
+	ctx.executed.add(statement)
+	ctx.everExecuted.add(statement)
 }
 
 func (ctx *context) currentStatement() (ConditionalStatement, bool) {
@@ -237,8 +237,8 @@ func (ctx *context) addChoice(choice *stmt.Choice) {
 		return
 	}
 	ctx.choices[choice.Index] = choice
-	ctx.shown[choice] = true
-	ctx.everShown[choice] = true
+	ctx.shown.add(choice)
+	ctx.everShown.add(choice)
 }
 
 func (ctx *context) evalText(text string) string {
