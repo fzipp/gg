@@ -116,6 +116,11 @@ func userInput(prompt string, min, max int) int {
 		var no int
 		_, err := fmt.Scanf("%d", &no)
 		if err != nil || no < min || no > max {
+			if min == max {
+				fmt.Printf("Please choose option %d. You don't have a choice anyway.\n", min)
+			} else {
+				fmt.Printf("Please choose an option between %d and %d.\n", min, max)
+			}
 			continue
 		}
 		return no
