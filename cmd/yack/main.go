@@ -56,8 +56,8 @@ Usage:
 
 Examples:
     yack ExampleDialog.yack
-	yack -t ExampleTexts.tsv ExampleDialog.yack
-	yack -t ExampleTexts.tsv -l main ExampleDialog.yack`)
+    yack -t ExampleTexts.tsv ExampleDialog.yack
+    yack -t ExampleTexts.tsv -l main ExampleDialog.yack`)
 }
 
 func main() {
