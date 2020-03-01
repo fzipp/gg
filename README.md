@@ -29,7 +29,11 @@ go get github.com/fzipp/gg/cmd/...
 * [ggdict](https://pkg.go.dev/github.com/fzipp/gg/ggdict) Read and write the GGDictionary format.
 * [texts](https://pkg.go.dev/github.com/fzipp/gg/texts) Replace text ID placeholders with texts.
 * [yack](https://pkg.go.dev/github.com/fzipp/gg/yack) Parse yack dialog files.
-* [texturepacker](https://pkg.go.dev/github.com/fzipp/texturepacker) Read sprite sheet information from TexturePacker's JSON (Hash) export format.
+
+Related, but independent packages:
+
+* [texturepacker](https://pkg.go.dev/github.com/fzipp/texturepacker) Read sprite sheet information from [TexturePacker](https://www.codeandweb.com/texturepacker)'s JSON (Hash) export format.
+* [bmfont](https://pkg.go.dev/github.com/fzipp/bmfont) Read bitmap font control files (.fnt) in the format of [AngelCode's bitmap font generator](https://www.angelcode.com/products/bmfont/).
 
 ## Related Work
 
