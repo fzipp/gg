@@ -25,13 +25,14 @@ type context struct {
 
 	choices map[int]*stmt.Choice
 
-	executed map[Statement]bool
-	shown    map[Statement]bool
+	executed     map[Statement]bool
+	shown        map[Statement]bool
+	everExecuted map[Statement]bool
+	everShown    map[Statement]bool
 }
 
-func newContext(d *Dialog, s Scripting, t Talk, startActor string) *context {
+func newContext(s Scripting, t Talk, startActor string) *context {
 	return &context{
-		dialog:       d,
 		scripting:    s,
 		talk:         t,
 		currentActor: startActor,
@@ -40,6 +41,8 @@ func newContext(d *Dialog, s Scripting, t Talk, startActor string) *context {
 		choices:      make(map[int]*stmt.Choice),
 		executed:     make(map[Statement]bool),
 		shown:        make(map[Statement]bool),
+		everExecuted: make(map[Statement]bool),
+		everShown:    make(map[Statement]bool),
 	}
 }
 
@@ -126,13 +129,30 @@ func (ctx *context) IsShowOnce() bool {
 }
 
 func (ctx *context) IsOnceEver() bool {
-	// TODO
-	return ctx.IsOnce()
+	s, ok := ctx.currentStatement()
+	return ok && !ctx.everExecuted[s.Statement]
+}
+
+func (ctx *context) IsShowOnceEver() bool {
+	s, ok := ctx.currentStatement()
+	return ok && !ctx.everShown[s.Statement]
 }
 
 func (ctx *context) IsTempOnce() bool {
 	// TODO
 	return ctx.IsOnce()
+}
+
+func (ctx *context) init(d *Dialog) {
+	ctx.dialog = d
+	ctx.shown = make(map[Statement]bool)
+	ctx.executed = make(map[Statement]bool)
+	ctx.runLabel(labelInit)
+}
+
+func (ctx *context) runLabel(label string) *Choices {
+	ctx.Goto(label)
+	return ctx.run()
 }
 
 func (ctx *context) run() *Choices {
@@ -167,6 +187,7 @@ func (ctx *context) run() *Choices {
 func (ctx *context) execute(statement Statement) {
 	statement.Execute(ctx)
 	ctx.executed[statement] = true
+	ctx.everExecuted[statement] = true
 }
 
 func (ctx *context) currentStatement() (ConditionalStatement, bool) {
@@ -217,6 +238,7 @@ func (ctx *context) addChoice(choice *stmt.Choice) {
 	}
 	ctx.choices[choice.Index] = choice
 	ctx.shown[choice] = true
+	ctx.everShown[choice] = true
 }
 
 func (ctx *context) evalText(text string) string {

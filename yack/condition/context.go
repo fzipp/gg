@@ -10,5 +10,6 @@ type Context interface {
 	IsOnce() bool
 	IsShowOnce() bool
 	IsOnceEver() bool
+	IsShowOnceEver() bool
 	IsTempOnce() bool
 }

@@ -170,6 +170,7 @@ func TestParseCondition(t *testing.T) {
 		{"! [once]", &condition.Once{}},
 		{"! [showonce]", &condition.ShowOnce{}},
 		{"! [onceever]", &condition.OnceEver{}},
+		{"! [showonceever]", &condition.ShowOnceEver{}},
 		{"! [temponce]", &condition.TempOnce{}},
 
 		{"! [testactor]", &condition.Actor{Actor: "testactor"}},

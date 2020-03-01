@@ -21,6 +21,7 @@ func TestString(t *testing.T) {
 		{&condition.Once{}, "[once]"},
 		{&condition.ShowOnce{}, "[showonce]"},
 		{&condition.OnceEver{}, "[onceever]"},
+		{&condition.ShowOnceEver{}, "[showonceever]"},
 		{&condition.TempOnce{}, "[temponce]"},
 		{&condition.Actor{Actor: "testactor"}, "[testactor]"},
 		{&condition.Code{Code: "g.test_var == NO"}, "[g.test_var == NO]"},
@@ -39,6 +40,7 @@ func TestIsFulfilled(t *testing.T) {
 		&condition.Once{},
 		&condition.ShowOnce{},
 		&condition.OnceEver{},
+		&condition.ShowOnceEver{},
 		&condition.TempOnce{},
 		&condition.Actor{Actor: "testactor"},
 		&condition.Code{Code: "g.test_var == NO"},
@@ -47,6 +49,7 @@ func TestIsFulfilled(t *testing.T) {
 	wantCalls := `IsOnce()
 IsShowOnce()
 IsOnceEver()
+IsShowOnceEver()
 IsTempOnce()
 IsActor("testactor")
 IsCodeTrue("g.test_var == NO")
@@ -81,6 +84,11 @@ func (ctx *tracingTestContext) IsShowOnce() bool {
 
 func (ctx *tracingTestContext) IsOnceEver() bool {
 	ctx.callTrace.WriteString("IsOnceEver()\n")
+	return ctx.ret
+}
+
+func (ctx *tracingTestContext) IsShowOnceEver() bool {
+	ctx.callTrace.WriteString("IsShowOnceEver()\n")
 	return ctx.ret
 }
 

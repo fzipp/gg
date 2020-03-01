@@ -308,6 +308,8 @@ func (p *parser) parseCondition() Condition {
 		return &condition.ShowOnce{}
 	case "onceever":
 		return &condition.OnceEver{}
+	case "showonceever":
+		return &condition.ShowOnceEver{}
 	case "temponce":
 		return &condition.TempOnce{}
 	}

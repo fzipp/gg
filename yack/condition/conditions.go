@@ -49,6 +49,16 @@ func (c *ShowOnce) String() string {
 	return "[showonce]"
 }
 
+type ShowOnceEver struct{}
+
+func (c *ShowOnceEver) IsFulfilled(ctx Context) bool {
+	return ctx.IsShowOnceEver()
+}
+
+func (c *ShowOnceEver) String() string {
+	return "[showonceever]"
+}
+
 type OnceEver struct{}
 
 func (c *OnceEver) IsFulfilled(ctx Context) bool {

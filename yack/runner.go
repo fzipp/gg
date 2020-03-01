@@ -18,21 +18,17 @@ type Runner struct {
 	ctx *context
 }
 
-func NewRunner(d *Dialog, s Scripting, t Talk, startActor string) *Runner {
-	return &Runner{ctx: newContext(d, s, t, startActor)}
+func NewRunner(s Scripting, t Talk, startActor string) *Runner {
+	return &Runner{ctx: newContext(s, t, startActor)}
 }
 
-func (r *Runner) Init() {
-	_ = r.StartAt(labelInit)
+func (r *Runner) Start(d *Dialog) *Choices {
+	return r.StartAt(d, labelStart)
 }
 
-func (r *Runner) Start() *Choices {
-	return r.StartAt(labelStart)
-}
-
-func (r *Runner) StartAt(label string) *Choices {
-	r.ctx.Goto(label)
-	return r.ctx.run()
+func (r *Runner) StartAt(d *Dialog, label string) *Choices {
+	r.ctx.init(d)
+	return r.ctx.runLabel(label)
 }
 
 type Talk interface {
