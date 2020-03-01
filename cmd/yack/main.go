@@ -86,8 +86,10 @@ func run(dialog *yack.Dialog, startActor, startLabel string, textTable texts.Tab
 	choices := runner.StartAt(startLabel)
 	for len(choices.Options) > 0 {
 		printChoices(choices, textTable)
-		input := userInput(1, len(choices.Options))
+		prompt := choices.Actor + "> "
+		input := userInput(prompt, 1, len(choices.Options))
 		opt := choices.Options[input-1]
+		fmt.Println()
 		choices = choices.Choose(opt)
 	}
 }
@@ -108,9 +110,9 @@ func printChoices(choices *yack.Choices, textTable texts.Table) {
 	}
 }
 
-func userInput(min, max int) int {
+func userInput(prompt string, min, max int) int {
 	for {
-		fmt.Print("> ")
+		fmt.Print(prompt)
 		var no int
 		_, err := fmt.Scanf("%d", &no)
 		if err != nil || no < min || no > max {
