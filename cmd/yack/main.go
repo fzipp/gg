@@ -2,17 +2,21 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Runs yack dialogs on the console. Scripting language statements are ignored.
-// Scripting language conditions always evaluate to true.
+// Runs yack dialogs on the console.
+//
+// The scripting language used for code statements and code conditions is not
+// Squirrel, but JavaScript. However, Squirrel's "<-" assignment operator can
+// be used and simply gets replaced with "=". YES and NO are also pre-defined.
 //
 // Usage:
-//     yack [-l start_label] [-a start_actor] [-t texts_file] yack_file
+//     yack [-t texts_file] [-l start_label] [-a start_actor] yack_file
 //
 // Flags:
-//     -l    The start label. Default: "start"
-//     -a    The start actor. Default: "you"
-//     -t    A text table file in TSV (tab-separated values) format to look up
-//           text IDs (i.e. "@12345") and replace them with actual texts.
+//     -t  A text table file in TSV (tab-separated values) format to look up
+//         text IDs (i.e. "@12345") and replace them with actual texts.
+//     -l  The start label. Default: "start"
+//     -a  The start actor. Default: "you"
+//     -d  Show debug information, such as animation tags and script errors.
 //
 // Examples:
 //     yack ExampleDialog.yack
@@ -34,17 +38,21 @@ import (
 )
 
 func usage() {
-	fail(`Runs yack dialogs on the console. Scripting language statements are ignored.
-Scripting language conditions always evaluate to true.
+	fail(`Runs yack dialogs on the console.
+
+The scripting language used for code statements and code conditions is not
+Squirrel, but JavaScript. However, Squirrel's "<-" assignment operator can
+be used and simply gets replaced with "=". YES and NO are also pre-defined.
 
 Flags:
-    -l  The start label. Default: "start"
-    -a  The start actor. Default: "you"
     -t  A text table file in TSV (tab-separated values) format to look up
         text IDs (i.e. "@12345") and replace them with actual texts.
+    -l  The start label. Default: "start"
+    -a  The start actor. Default: "you"
+    -d  Show debug information, such as animation tags and script errors.
 
 Usage:
-    yack [-l start_label] [-a start_actor] [-t texts_file] yack_file
+    yack [-t texts_file] [-l start_label] [-a start_actor] [-d] yack_file
 
 Examples:
     yack ExampleDialog.yack
@@ -56,6 +64,7 @@ func main() {
 	textsFileFlag := flag.String("t", "", "path to a text database file (TSV format)")
 	startLabelFlag := flag.String("l", "start", "start label")
 	startActorFlag := flag.String("a", "you", "start actor name")
+	debugFlag := flag.Bool("d", false, "show debugMode information")
 
 	flag.Usage = usage
 	flag.Parse()
@@ -86,17 +95,19 @@ func main() {
 	err = file.Close()
 	check(err)
 
-	run(dialog, *startActorFlag, *startLabelFlag)
+	run(dialog, *startActorFlag, *startLabelFlag, *debugFlag)
 }
 
-func run(dialog *yack.Dialog, startActor, startLabel string) {
+func run(dialog *yack.Dialog, startActor, startLabel string, debugMode bool) {
 	checkStartLabelExists(dialog, startLabel)
-	talk := &consoleTalk{}
-	runner := yack.NewRunner(dialog, noScripting{}, talk, startActor)
+	talk := &consoleTalk{debugMode: debugMode}
+	scripting := newJScripting()
+	scripting.verbose = debugMode
+	runner := yack.NewRunner(dialog, scripting, talk, startActor)
 	runner.Init()
 	choices := runner.StartAt(startLabel)
 	for len(choices.Options) > 0 {
-		printChoices(choices)
+		printChoices(choices, debugMode)
 		prompt := choices.Actor + "> "
 		input := userInput(prompt, 1, len(choices.Options))
 		opt := choices.Options[input-1]
@@ -114,10 +125,14 @@ func checkStartLabelExists(dialog *yack.Dialog, startLabel string) {
 	}
 }
 
-func printChoices(choices *yack.Choices) {
+func printChoices(choices *yack.Choices, debugMode bool) {
 	fmt.Println()
 	for i, opt := range choices.Options {
-		fmt.Printf("%d) %s\n", i+1, opt.Text)
+		text := opt.Text
+		if !debugMode {
+			text = stripAnimationTags(text)
+		}
+		fmt.Printf("%d) %s\n", i+1, text)
 	}
 }
 
@@ -138,10 +153,14 @@ func userInput(prompt string, min, max int) int {
 	}
 }
 
-var animationTagsRegexp = regexp.MustCompile(`\^?{.*}`)
+var (
+	animationTagsRegexp   = regexp.MustCompile(`\^?{.*}`)
+	parenthesesTagsRegexp = regexp.MustCompile(`^\(.*\)`)
+)
 
 func stripAnimationTags(text string) string {
-	return animationTagsRegexp.ReplaceAllString(text, "")
+	text = animationTagsRegexp.ReplaceAllString(text, "")
+	return parenthesesTagsRegexp.ReplaceAllString(text, "")
 }
 
 func check(err error) {
@@ -155,10 +174,14 @@ func fail(message interface{}) {
 	os.Exit(1)
 }
 
-type consoleTalk struct{}
+type consoleTalk struct {
+	debugMode bool
+}
 
 func (t *consoleTalk) Say(actor, text string) {
-	text = stripAnimationTags(text)
+	if !t.debugMode {
+		text = stripAnimationTags(text)
+	}
 	if text == "" {
 		return
 	}
