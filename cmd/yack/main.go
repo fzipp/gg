@@ -17,7 +17,7 @@
 // Examples:
 //     yack ExampleDialog.yack
 //     yack -t ExampleTexts.tsv ExampleDialog.yack
-//     yack -l introduction -t ExampleTexts.tsv ExampleDialog.yack
+//     yack -t ExampleTexts.tsv -l main ExampleDialog.yack
 package main
 
 import (
@@ -49,7 +49,7 @@ Usage:
 Examples:
     yack ExampleDialog.yack
 	yack -t ExampleTexts.tsv ExampleDialog.yack
-	yack -l introduction -t ExampleTexts.tsv ExampleDialog.yack`)
+	yack -t ExampleTexts.tsv -l main ExampleDialog.yack`)
 }
 
 func main() {
