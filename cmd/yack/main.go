@@ -21,9 +21,11 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/fzipp/gg/texts"
@@ -71,21 +73,29 @@ func main() {
 		}
 	}
 
-	dialog, err := yack.Load(flag.Arg(0))
-	if err != nil {
-		_, _ = fmt.Fprintln(os.Stderr, err)
-	}
-	run(dialog, *startActorFlag, *startLabelFlag, textTable)
+	path := flag.Arg(0)
+	file, err := os.Open(path)
+	check(err)
+
+	var buf bytes.Buffer
+	err = textTable.ResolveTexts(&buf, file)
+	check(err)
+	dialog, err := yack.Parse(filepath.Base(path), &buf)
+	check(err)
+	err = file.Close()
+	check(err)
+
+	run(dialog, *startActorFlag, *startLabelFlag)
 }
 
-func run(dialog *yack.Dialog, startActor, startLabel string, textTable texts.Table) {
+func run(dialog *yack.Dialog, startActor, startLabel string) {
 	checkStartLabelExists(dialog, startLabel)
-	talk := &consoleTalk{textTable}
+	talk := &consoleTalk{}
 	runner := yack.NewRunner(dialog, noScripting{}, talk, startActor)
 	runner.Init()
 	choices := runner.StartAt(startLabel)
 	for len(choices.Options) > 0 {
-		printChoices(choices, textTable)
+		printChoices(choices)
 		prompt := choices.Actor + "> "
 		input := userInput(prompt, 1, len(choices.Options))
 		opt := choices.Options[input-1]
@@ -103,10 +113,10 @@ func checkStartLabelExists(dialog *yack.Dialog, startLabel string) {
 	}
 }
 
-func printChoices(choices *yack.Choices, textTable texts.Table) {
+func printChoices(choices *yack.Choices) {
 	fmt.Println()
 	for i, opt := range choices.Options {
-		fmt.Printf("%d) %s\n", i+1, maybeResolve(opt.Text, textTable))
+		fmt.Printf("%d) %s\n", i+1, opt.Text)
 	}
 }
 
@@ -127,18 +137,22 @@ func userInput(prompt string, min, max int) int {
 	}
 }
 
+func check(err error) {
+	if err != nil {
+		fail(err)
+	}
+}
+
 func fail(message interface{}) {
 	_, _ = fmt.Fprintln(os.Stderr, message)
 	os.Exit(1)
 }
 
-type consoleTalk struct {
-	textTable texts.Table
-}
+type consoleTalk struct{}
 
 func (t *consoleTalk) Say(actor, text string) {
-	fmt.Printf("%s: %s\n", actor, maybeResolve(text, t.textTable))
-	time.Sleep(time.Duration(len(text)) * 500 * time.Millisecond)
+	fmt.Printf("%s: %s\n", actor, text)
+	time.Sleep(time.Duration(len(text)) * 70 * time.Millisecond)
 }
 
 type noScripting struct{}
@@ -146,15 +160,4 @@ type noScripting struct{}
 func (s noScripting) Eval(code string) (result interface{}, err error) {
 	// do nothing, always return true
 	return true, nil
-}
-
-func maybeResolve(text string, textTable texts.Table) string {
-	if textTable == nil {
-		return text
-	}
-	text, err := textTable.ResolveTextsString(text)
-	if err != nil {
-		fail(err)
-	}
-	return text
 }
