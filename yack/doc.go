@@ -21,7 +21,7 @@
 //                 OverrideStmt | AllowObjectsStmt | LimitStmt .
 //
 //     SayStmt          = actor_name ":" string_lit [ GotoStmt ] .
-//     GotoStmt         = "->" Label .
+//     GotoStmt         = "->" label .
 //     ExecuteStmt      = "!" Code .
 //     ChoiceStmt       = int_lit (string_lit | ("$" Code)) GotoStmt .
 //     ShutUpStmt       = "shutup" .
