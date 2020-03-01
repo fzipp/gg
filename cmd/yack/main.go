@@ -26,6 +26,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"time"
 
 	"github.com/fzipp/gg/texts"
@@ -137,6 +138,12 @@ func userInput(prompt string, min, max int) int {
 	}
 }
 
+var animationTagsRegexp = regexp.MustCompile(`\^?{.*}`)
+
+func stripAnimationTags(text string) string {
+	return animationTagsRegexp.ReplaceAllString(text, "")
+}
+
 func check(err error) {
 	if err != nil {
 		fail(err)
@@ -151,6 +158,10 @@ func fail(message interface{}) {
 type consoleTalk struct{}
 
 func (t *consoleTalk) Say(actor, text string) {
+	text = stripAnimationTags(text)
+	if text == "" {
+		return
+	}
 	fmt.Printf("%s: %s\n", actor, text)
 	time.Sleep(time.Duration(len(text)) * 70 * time.Millisecond)
 }
