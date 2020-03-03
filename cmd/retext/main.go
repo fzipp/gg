@@ -71,7 +71,7 @@ text_id en
 }
 
 func main() {
-	textsFilePath := flag.String("t", "", "textTable file in TSV format")
+	textsFilePath := flag.String("t", "", "text table file in TSV format")
 	replaceSource := flag.Bool("w", false, "write result to (source) file instead of stdout")
 
 	flag.Usage = usage
