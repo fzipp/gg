@@ -4,8 +4,10 @@
 
 package yack
 
+import "github.com/fzipp/gg/yack/stmt"
+
 type statementSet struct {
-	statements map[Statement]struct{}
+	statements map[stmt.Statement]struct{}
 }
 
 func newStatementSet() *statementSet {
@@ -14,15 +16,15 @@ func newStatementSet() *statementSet {
 	return s
 }
 
-func (s *statementSet) add(stmt Statement) {
-	s.statements[stmt] = struct{}{}
+func (set *statementSet) add(s stmt.Statement) {
+	set.statements[s] = struct{}{}
 }
 
-func (s *statementSet) contains(stmt Statement) bool {
-	_, ok := s.statements[stmt]
+func (set *statementSet) contains(s stmt.Statement) bool {
+	_, ok := set.statements[s]
 	return ok
 }
 
-func (s *statementSet) clear() {
-	s.statements = make(map[Statement]struct{})
+func (set *statementSet) clear() {
+	set.statements = make(map[stmt.Statement]struct{})
 }

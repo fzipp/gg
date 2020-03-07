@@ -14,7 +14,7 @@ import (
 	"text/scanner"
 	"unicode"
 
-	"github.com/fzipp/gg/yack/condition"
+	"github.com/fzipp/gg/yack/cond"
 	"github.com/fzipp/gg/yack/stmt"
 )
 
@@ -26,15 +26,13 @@ func Load(path string) (*Dialog, error) {
 		return nil, fmt.Errorf("could not open yack file '%s': %w", path, err)
 	}
 	defer file.Close()
-	return Parse(filepath.Base(path), file)
+	return (&parser{}).parse(filepath.Base(path), file)
 }
 
-// Parse parses a dialog from a source in yack format. Syntax errors are
-// returned as error. The filename parameter is only used as prefix for the
-// error messages.
-func Parse(filename string, src io.Reader) (*Dialog, error) {
-	var p parser
-	return p.parse(filename, src)
+// Read reads a dialog from a source in yack format. Syntax errors are
+// returned as error.
+func Read(r io.Reader) (*Dialog, error) {
+	return (&parser{}).parse("yack", r)
 }
 
 type parser struct {
@@ -61,13 +59,13 @@ func (p *parser) parse(filename string, src io.Reader) (*Dialog, error) {
 	p.next()
 	d := &Dialog{
 		Statements: make([]ConditionalStatement, 0),
-		LabelIndex: make(map[string]int),
+		Labels:     make(map[string]int),
 	}
 	for p.tok != scanner.EOF {
 		if p.tok == ':' {
 			p.next()
 			label := p.parseIdentifier()
-			d.LabelIndex[label] = len(d.Statements)
+			d.Labels[label] = len(d.Statements)
 			p.expectCommentOrNewLine()
 			continue
 		}
@@ -89,7 +87,7 @@ func (p *parser) parseConditionalStatement() ConditionalStatement {
 	}
 }
 
-func (p *parser) parseStatement() Statement {
+func (p *parser) parseStatement() stmt.Statement {
 	switch p.tok {
 	case '!':
 		p.tok = p.scanner.Next()
@@ -170,8 +168,8 @@ func (p *parser) parseStatement() Statement {
 	return nil
 }
 
-func (p *parser) parseConditions() Conditions {
-	var conditions Conditions
+func (p *parser) parseConditions() []cond.Condition {
+	var conditions []cond.Condition
 	for p.tok == '[' {
 		p.tok = p.scanner.Next()
 		cond := p.parseCondition()
@@ -299,24 +297,24 @@ func (p *parser) parseCode() string {
 	return strings.TrimSpace(sb.String())
 }
 
-func (p *parser) parseCondition() Condition {
+func (p *parser) parseCondition() cond.Condition {
 	c := p.parseCode()
 	switch c {
 	case "once":
-		return &condition.Once{}
+		return &cond.Once{}
 	case "showonce":
-		return &condition.ShowOnce{}
+		return &cond.ShowOnce{}
 	case "onceever":
-		return &condition.OnceEver{}
+		return &cond.OnceEver{}
 	case "showonceever":
-		return &condition.ShowOnceEver{}
+		return &cond.ShowOnceEver{}
 	case "temponce":
-		return &condition.TempOnce{}
+		return &cond.TempOnce{}
 	}
 	if isActorName(c) {
-		return &condition.Actor{Actor: c}
+		return &cond.Actor{Actor: c}
 	}
-	return &condition.Code{Code: c}
+	return &cond.Code{Code: c}
 }
 
 func (p *parser) expectCommentOrNewLine() {

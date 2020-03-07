@@ -11,7 +11,7 @@ import (
 )
 
 func TestStatementSet(t *testing.T) {
-	statements := []Statement{
+	statements := []stmt.Statement{
 		&stmt.Pause{Seconds: 3},
 		&stmt.ShutUp{},
 		&stmt.ShutUp{},

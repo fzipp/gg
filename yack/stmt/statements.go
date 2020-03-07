@@ -7,6 +7,12 @@ package stmt
 
 import "strconv"
 
+// Statement is an executable statement in a dialog script.
+type Statement interface {
+	Execute(ctx Context)
+	String() string
+}
+
 type ShutUp struct{}
 
 func (s *ShutUp) Execute(ctx Context) {

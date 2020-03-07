@@ -9,13 +9,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/fzipp/gg/yack"
 	"github.com/fzipp/gg/yack/stmt"
 )
 
 func TestString(t *testing.T) {
 	tests := []struct {
-		statement yack.Statement
+		statement stmt.Statement
 		want      string
 	}{
 		{&stmt.ShutUp{}, "shutup"},
@@ -46,7 +45,7 @@ func TestString(t *testing.T) {
 }
 
 func TestExecute(t *testing.T) {
-	statements := []yack.Statement{
+	statements := []stmt.Statement{
 		&stmt.ShutUp{},
 		&stmt.Say{Actor: "testactor", Text: "hello, world"},
 		&stmt.Say{Actor: "testactor", Text: "hello, world", OptionalGotoLabel: "done"},

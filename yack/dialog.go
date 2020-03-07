@@ -8,7 +8,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/fzipp/gg/yack/condition"
+	"github.com/fzipp/gg/yack/cond"
 	"github.com/fzipp/gg/yack/stmt"
 )
 
@@ -17,7 +17,7 @@ import (
 // points via index to a statement in the statements slice.
 type Dialog struct {
 	Statements []ConditionalStatement
-	LabelIndex map[string]int
+	Labels     map[string]int
 }
 
 // String formats the dialog in yack syntax.
@@ -34,7 +34,7 @@ func (d *Dialog) String() string {
 
 func (d *Dialog) buildLabelsLookup() labelsLookup {
 	ll := make(labelsLookup)
-	for label, i := range d.LabelIndex {
+	for label, i := range d.Labels {
 		ll[i] = append(ll[i], label)
 	}
 	return ll
@@ -56,37 +56,26 @@ func (ll labelsLookup) writeLabels(sb *strings.Builder, index int) {
 
 // A ConditionalStatement is a statement guarded by zero or more conditions.
 type ConditionalStatement struct {
-	Statement  Statement
-	Conditions Conditions
+	Statement  stmt.Statement
+	Conditions []cond.Condition
 }
 
 // String formats the conditional statement in yack syntax, e.g.
 // "statement [condition1] [condition2] [condition3]"
 func (c ConditionalStatement) String() string {
 	s := c.Statement.String()
-	cs := c.Conditions.String()
+	cs := conditions(c.Conditions).String()
 	if cs == "" {
 		return s
 	}
 	return s + " " + cs
 }
 
-// Statement is an executable statement in a dialog script.
-type Statement interface {
-	Execute(ctx stmt.Context)
-	String() string
-}
+// conditions are zero or more conditions to guard a statement in a dialog script.
+type conditions []cond.Condition
 
-// Condition is a condition to guard statement in a dialog script.
-type Condition interface {
-	IsFulfilled(ctx condition.Context) bool
-	String() string
-}
-
-// Conditions are zero or more conditions to guard a statement in a dialog script.
-type Conditions []Condition
-
-func (c Conditions) AreFulfilled(ctx condition.Context) bool {
+// AreFulfilled returns true if all conditions are fulfilled.
+func (c conditions) AreFulfilled(ctx cond.Context) bool {
 	for _, cond := range c {
 		if !cond.IsFulfilled(ctx) {
 			return false
@@ -97,7 +86,7 @@ func (c Conditions) AreFulfilled(ctx condition.Context) bool {
 
 // String formats a set of conditions in yack syntax, e.g.
 // "[condition1] [condition2] [condition3]"
-func (c Conditions) String() string {
+func (c conditions) String() string {
 	cs := make([]string, len(c))
 	for i, cond := range c {
 		cs[i] = cond.String()

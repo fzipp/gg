@@ -75,7 +75,7 @@ func (ctx *context) Goto(label string) {
 		ctx.stmtCounter = len(ctx.dialog.Statements)
 		return
 	}
-	ctx.stmtCounter = ctx.dialog.LabelIndex[label]
+	ctx.stmtCounter = ctx.dialog.Labels[label]
 }
 
 func (ctx *context) Execute(code string) {
@@ -90,7 +90,7 @@ func (ctx *context) Choice(index int, text, gotoLabel string) {
 }
 
 func (ctx *context) ShutUp() {
-	// TODO: implement
+	ctx.talk.ShutUp()
 }
 
 func (ctx *context) WaitFor(actor string) {
@@ -162,7 +162,7 @@ func (ctx *context) run() *Choices {
 			break
 		}
 		counterBeforeExec := ctx.stmtCounter
-		if condStmt.Conditions.AreFulfilled(ctx) {
+		if conditions(condStmt.Conditions).AreFulfilled(ctx) {
 			if choice, ok := condStmt.Statement.(*stmt.Choice); ok {
 				ctx.addChoice(choice)
 			} else {
@@ -184,7 +184,7 @@ func (ctx *context) run() *Choices {
 	return &Choices{Actor: ctx.currentActor, ctx: ctx}
 }
 
-func (ctx *context) execute(statement Statement) {
+func (ctx *context) execute(statement stmt.Statement) {
 	statement.Execute(ctx)
 	ctx.executed.add(statement)
 	ctx.everExecuted.add(statement)

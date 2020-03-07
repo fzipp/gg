@@ -189,10 +189,3 @@ func (t *consoleTalk) Say(actor, text string) {
 	fmt.Printf("%s: %s\n", actor, text)
 	time.Sleep(time.Duration(len(text)) * 70 * time.Millisecond)
 }
-
-type noScripting struct{}
-
-func (s noScripting) Eval(code string) (result interface{}, err error) {
-	// do nothing, always return true
-	return true, nil
-}

@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/fzipp/gg/yack"
-	"github.com/fzipp/gg/yack/condition"
+	"github.com/fzipp/gg/yack/cond"
 	"github.com/fzipp/gg/yack/stmt"
 )
 
@@ -67,13 +67,13 @@ testactor: "@20003"`,
 		},
 	}
 	for _, tt := range tests {
-		dlg, err := yack.Parse("test", strings.NewReader(tt.src))
+		dlg, err := yack.Read(strings.NewReader(tt.src))
 		if err != nil {
 			t.Errorf("parsing of dialog %q returned error: %s", tt.src, err)
 			continue
 		}
-		if !reflect.DeepEqual(dlg.LabelIndex, tt.want) {
-			t.Errorf("parsed label index for %q was: %#v, want: %#v", tt.src, dlg.LabelIndex, tt.want)
+		if !reflect.DeepEqual(dlg.Labels, tt.want) {
+			t.Errorf("parsed label index for %q was: %#v, want: %#v", tt.src, dlg.Labels, tt.want)
 		}
 	}
 }
@@ -81,7 +81,7 @@ testactor: "@20003"`,
 func TestParseStatement(t *testing.T) {
 	tests := []struct {
 		line string
-		want yack.Statement
+		want stmt.Statement
 	}{
 		{"-> exit", &stmt.Goto{Label: "exit"}},
 		{"-> main", &stmt.Goto{Label: "main"}},
@@ -150,7 +150,7 @@ func TestParseStatement(t *testing.T) {
 		{`testactor: "This is a test." -> main`, &stmt.Say{Actor: "testactor", Text: "This is a test.", OptionalGotoLabel: "main"}},
 	}
 	for _, tt := range tests {
-		dlg, err := yack.Parse("test", strings.NewReader(tt.line))
+		dlg, err := yack.Read(strings.NewReader(tt.line))
 		if err != nil {
 			t.Errorf("parsing of statement %q returned error: %s", tt.line, err)
 			continue
@@ -165,30 +165,30 @@ func TestParseStatement(t *testing.T) {
 func TestParseCondition(t *testing.T) {
 	tests := []struct {
 		line string
-		want yack.Condition
+		want cond.Condition
 	}{
-		{"! [once]", &condition.Once{}},
-		{"! [showonce]", &condition.ShowOnce{}},
-		{"! [onceever]", &condition.OnceEver{}},
-		{"! [showonceever]", &condition.ShowOnceEver{}},
-		{"! [temponce]", &condition.TempOnce{}},
+		{"! [once]", &cond.Once{}},
+		{"! [showonce]", &cond.ShowOnce{}},
+		{"! [onceever]", &cond.OnceEver{}},
+		{"! [showonceever]", &cond.ShowOnceEver{}},
+		{"! [temponce]", &cond.TempOnce{}},
 
-		{"! [testactor]", &condition.Actor{Actor: "testactor"}},
-		{"! [testactor2]", &condition.Actor{Actor: "testactor2"}},
+		{"! [testactor]", &cond.Actor{Actor: "testactor"}},
+		{"! [testactor2]", &cond.Actor{Actor: "testactor2"}},
 
-		{"! [_test_var]", &condition.Code{Code: "_test_var"}},
-		{"! [test_var]", &condition.Code{Code: "test_var"}},
-		{"! [g.test_var == 1]", &condition.Code{Code: "g.test_var == 1"}},
-		{"! [g.test_var]", &condition.Code{Code: "g.test_var"}},
-		{"! [test.testVar]", &condition.Code{Code: "test.testVar"}},
-		{"! [!test.testVar && isTest()]", &condition.Code{Code: "!test.testVar && isTest()"}},
-		{"! [test_var == YES]", &condition.Code{Code: "test_var == YES"}},
-		{"! [random(1,5) == 1]", &condition.Code{Code: "random(1,5) == 1"}},
-		{"! [(g.test_var == YES) && Test.testVar == YES]", &condition.Code{Code: "(g.test_var == YES) && Test.testVar == YES"}},
-		{"! [!_test_var && !(testFunction1(test2) || testFunction2(test2))]", &condition.Code{Code: "!_test_var && !(testFunction1(test2) || testFunction2(test2))"}},
+		{"! [_test_var]", &cond.Code{Code: "_test_var"}},
+		{"! [test_var]", &cond.Code{Code: "test_var"}},
+		{"! [g.test_var == 1]", &cond.Code{Code: "g.test_var == 1"}},
+		{"! [g.test_var]", &cond.Code{Code: "g.test_var"}},
+		{"! [test.testVar]", &cond.Code{Code: "test.testVar"}},
+		{"! [!test.testVar && isTest()]", &cond.Code{Code: "!test.testVar && isTest()"}},
+		{"! [test_var == YES]", &cond.Code{Code: "test_var == YES"}},
+		{"! [random(1,5) == 1]", &cond.Code{Code: "random(1,5) == 1"}},
+		{"! [(g.test_var == YES) && Test.testVar == YES]", &cond.Code{Code: "(g.test_var == YES) && Test.testVar == YES"}},
+		{"! [!_test_var && !(testFunction1(test2) || testFunction2(test2))]", &cond.Code{Code: "!_test_var && !(testFunction1(test2) || testFunction2(test2))"}},
 	}
 	for _, tt := range tests {
-		dlg, err := yack.Parse("test", strings.NewReader(tt.line))
+		dlg, err := yack.Read(strings.NewReader(tt.line))
 		if err != nil {
 			t.Errorf("parsing of condition %q returned error: %s", tt.line, err)
 			continue
@@ -205,15 +205,15 @@ func TestParseErrors(t *testing.T) {
 		src       string
 		msgPrefix string
 	}{
-		{"parrot AYE", "test:1:11: invalid boolean literal: AYE"},
-		{"pause five", "test:1:7: expected Float, found Ident five"},
-		{"limit 0.5", "test:1:7: expected Int, found Float 0.5"},
-		{"invalidcommand", "test:1:15: invalid command: invalidcommand"},
-		{`testactor: "invalidstring`, `test:1:12: literal not terminated`},
-		{"pause 2)", `test:1:8: expected "\n", found ")"`},
+		{"parrot AYE", "yack:1:11: invalid boolean literal: AYE"},
+		{"pause five", "yack:1:7: expected Float, found Ident five"},
+		{"limit 0.5", "yack:1:7: expected Int, found Float 0.5"},
+		{"invalidcommand", "yack:1:15: invalid command: invalidcommand"},
+		{`testactor: "invalidstring`, `yack:1:12: literal not terminated`},
+		{"pause 2)", `yack:1:8: expected "\n", found ")"`},
 	}
 	for _, tt := range tests {
-		_, err := yack.Parse("test", strings.NewReader(tt.src))
+		_, err := yack.Read(strings.NewReader(tt.src))
 		if err == nil {
 			t.Errorf("no error on parsing %q, but expected one", tt.src)
 			continue
@@ -227,7 +227,7 @@ func TestParseErrors(t *testing.T) {
 func TestComments(t *testing.T) {
 	tests := []struct {
 		line string
-		want yack.Statement
+		want stmt.Statement
 	}{
 		{"!", &stmt.Execute{Code: ""}},
 		{"!;", &stmt.Execute{Code: ""}},
@@ -242,7 +242,7 @@ func TestComments(t *testing.T) {
 		{`!abc def ";\";This\" is not a comment"; This is a comment`, &stmt.Execute{Code: `abc def ";\";This\" is not a comment"`}},
 	}
 	for _, tt := range tests {
-		dlg, err := yack.Parse("test", strings.NewReader(tt.line))
+		dlg, err := yack.Read(strings.NewReader(tt.line))
 		if err != nil {
 			t.Errorf("parsing of statement with comment %q returned error: %s", tt.line, err)
 			continue
@@ -264,18 +264,18 @@ func TestLoad(t *testing.T) {
 			{Statement: &stmt.Execute{Code: "testFunc()"}},
 			{
 				Statement:  &stmt.Choice{Index: 1, Text: "@30001", GotoLabel: "test_label1"},
-				Conditions: yack.Conditions{&condition.Once{}},
+				Conditions: []cond.Condition{&cond.Once{}},
 			},
 			{
 				Statement: &stmt.Choice{Index: 2, Text: "@30002", GotoLabel: "test_label2"},
-				Conditions: yack.Conditions{
-					&condition.ShowOnce{},
-					&condition.Code{Code: "g.test_var == NO"},
+				Conditions: []cond.Condition{
+					&cond.ShowOnce{},
+					&cond.Code{Code: "g.test_var == NO"},
 				},
 			},
 			{
 				Statement:  &stmt.Choice{Index: 2, Text: "@30003", GotoLabel: "test_label3"},
-				Conditions: yack.Conditions{&condition.Code{Code: "g.test_var == YES"}},
+				Conditions: []cond.Condition{&cond.Code{Code: "g.test_var == YES"}},
 			},
 			{Statement: &stmt.Choice{Index: 3, Text: "@30004", GotoLabel: "done"}},
 			{Statement: &stmt.Goto{Label: "exit"}},
@@ -286,16 +286,16 @@ func TestLoad(t *testing.T) {
 			{Statement: &stmt.Goto{Label: "main"}},
 			{
 				Statement:  &stmt.Say{Actor: "testactor2", Text: "@40004", OptionalGotoLabel: ""},
-				Conditions: yack.Conditions{&condition.Code{Code: "test_var"}},
+				Conditions: []cond.Condition{&cond.Code{Code: "test_var"}},
 			},
 			{
 				Statement:  &stmt.Say{Actor: "testactor2", Text: "@40004", OptionalGotoLabel: ""},
-				Conditions: yack.Conditions{&condition.Code{Code: "!test_var"}},
+				Conditions: []cond.Condition{&cond.Code{Code: "!test_var"}},
 			},
 			{Statement: &stmt.Goto{Label: "main"}},
 			{Statement: &stmt.Say{Actor: "testactor", Text: "@40005", OptionalGotoLabel: ""}},
 		},
-		LabelIndex: map[string]int{
+		Labels: map[string]int{
 			"init":        0,
 			"start":       2,
 			"main":        3,

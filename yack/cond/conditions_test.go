@@ -2,30 +2,29 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package condition_test
+package cond_test
 
 import (
 	"fmt"
 	"strings"
 	"testing"
 
-	"github.com/fzipp/gg/yack"
-	"github.com/fzipp/gg/yack/condition"
+	"github.com/fzipp/gg/yack/cond"
 )
 
 func TestString(t *testing.T) {
 	tests := []struct {
-		cond yack.Condition
+		cond cond.Condition
 		want string
 	}{
-		{&condition.Once{}, "[once]"},
-		{&condition.ShowOnce{}, "[showonce]"},
-		{&condition.OnceEver{}, "[onceever]"},
-		{&condition.ShowOnceEver{}, "[showonceever]"},
-		{&condition.TempOnce{}, "[temponce]"},
-		{&condition.Actor{Actor: "testactor"}, "[testactor]"},
-		{&condition.Code{Code: "g.test_var == NO"}, "[g.test_var == NO]"},
-		{&condition.Code{Code: "testFunc()"}, "[testFunc()]"},
+		{&cond.Once{}, "[once]"},
+		{&cond.ShowOnce{}, "[showonce]"},
+		{&cond.OnceEver{}, "[onceever]"},
+		{&cond.ShowOnceEver{}, "[showonceever]"},
+		{&cond.TempOnce{}, "[temponce]"},
+		{&cond.Actor{Actor: "testactor"}, "[testactor]"},
+		{&cond.Code{Code: "g.test_var == NO"}, "[g.test_var == NO]"},
+		{&cond.Code{Code: "testFunc()"}, "[testFunc()]"},
 	}
 
 	for _, tt := range tests {
@@ -36,15 +35,15 @@ func TestString(t *testing.T) {
 }
 
 func TestIsFulfilled(t *testing.T) {
-	conditions := yack.Conditions{
-		&condition.Once{},
-		&condition.ShowOnce{},
-		&condition.OnceEver{},
-		&condition.ShowOnceEver{},
-		&condition.TempOnce{},
-		&condition.Actor{Actor: "testactor"},
-		&condition.Code{Code: "g.test_var == NO"},
-		&condition.Code{Code: "testFunc()"},
+	conditions := []cond.Condition{
+		&cond.Once{},
+		&cond.ShowOnce{},
+		&cond.OnceEver{},
+		&cond.ShowOnceEver{},
+		&cond.TempOnce{},
+		&cond.Actor{Actor: "testactor"},
+		&cond.Code{Code: "g.test_var == NO"},
+		&cond.Code{Code: "testFunc()"},
 	}
 	wantCalls := `IsOnce()
 IsShowOnce()

@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/fzipp/gg/yack"
-	"github.com/fzipp/gg/yack/condition"
+	"github.com/fzipp/gg/yack/cond"
 	"github.com/fzipp/gg/yack/stmt"
 )
 
@@ -33,7 +33,7 @@ var testStatementsDialog = &yack.Dialog{
 		{Statement: &stmt.AllowObjects{Allow: true}},
 		{Statement: &stmt.Limit{N: 4}},
 	},
-	LabelIndex: map[string]int{
+	Labels: map[string]int{
 		"start": 0,
 	},
 }
@@ -82,7 +82,7 @@ var testLabelsDialog = &yack.Dialog{
 		{Statement: &stmt.ShutUp{}},
 		{Statement: &stmt.ShutUp{}},
 	},
-	LabelIndex: map[string]int{
+	Labels: map[string]int{
 		"init":   0,
 		"start":  2,
 		"main":   5,
@@ -126,37 +126,41 @@ shutup
 
 func TestConditionsString(t *testing.T) {
 	tests := []struct {
-		conditions yack.Conditions
+		conditions []cond.Condition
 		want       string
 	}{
-		{yack.Conditions{}, ""},
-		{yack.Conditions{
-			&condition.Actor{Actor: "testactor"},
-		}, "[testactor]"},
-		{yack.Conditions{
-			&condition.Actor{Actor: "testactor2"},
-			&condition.Once{},
-			&condition.Code{Code: "g.test_var == YES"},
-		}, "[testactor2] [once] [g.test_var == YES]"},
-		{yack.Conditions{
-			&condition.OnceEver{},
-			&condition.Code{Code: "testFunc()"},
-		}, "[onceever] [testFunc()]"},
-		{yack.Conditions{
-			&condition.TempOnce{},
-		}, "[temponce]"},
-		{yack.Conditions{
-			&condition.ShowOnce{},
-			&condition.Actor{Actor: "testactor"},
-		}, "[showonce] [testactor]"},
-		{yack.Conditions{
-			&condition.Actor{Actor: "testactor"},
-			&condition.ShowOnce{},
-		}, "[testactor] [showonce]"},
+		{[]cond.Condition{}, "shutup"},
+		{[]cond.Condition{
+			&cond.Actor{Actor: "testactor"},
+		}, "shutup [testactor]"},
+		{[]cond.Condition{
+			&cond.Actor{Actor: "testactor2"},
+			&cond.Once{},
+			&cond.Code{Code: "g.test_var == YES"},
+		}, "shutup [testactor2] [once] [g.test_var == YES]"},
+		{[]cond.Condition{
+			&cond.OnceEver{},
+			&cond.Code{Code: "testFunc()"},
+		}, "shutup [onceever] [testFunc()]"},
+		{[]cond.Condition{
+			&cond.TempOnce{},
+		}, "shutup [temponce]"},
+		{[]cond.Condition{
+			&cond.ShowOnce{},
+			&cond.Actor{Actor: "testactor"},
+		}, "shutup [showonce] [testactor]"},
+		{[]cond.Condition{
+			&cond.Actor{Actor: "testactor"},
+			&cond.ShowOnce{},
+		}, "shutup [testactor] [showonce]"},
 	}
 	for _, tt := range tests {
-		if s := tt.conditions.String(); s != tt.want {
-			t.Errorf("yack representation of conditions %#v was: %s, want: %s", tt.conditions, s, tt.want)
+		condStmt := yack.ConditionalStatement{
+			Statement:  &stmt.ShutUp{},
+			Conditions: tt.conditions,
+		}
+		if s := condStmt.String(); s != tt.want {
+			t.Errorf("yack representation of conditional statement %#v was: %s, want: %s", condStmt, s, tt.want)
 		}
 	}
 }

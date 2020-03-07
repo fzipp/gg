@@ -2,8 +2,14 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package condition defines conditions for statements of the yack language.
-package condition
+// Package cond defines conditions for statements of the yack language.
+package cond
+
+// Condition is a condition to guard statement in a dialog script.
+type Condition interface {
+	IsFulfilled(ctx Context) bool
+	String() string
+}
 
 type Actor struct {
 	Actor string
