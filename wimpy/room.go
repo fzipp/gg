@@ -15,7 +15,7 @@ type Room struct {
 	Layers     []Layer
 	Objects    []Object
 	RoomSize   image.Point
-	Scalings   Scalings
+	Scaling    []Scalings
 	WalkBoxes  []WalkBox
 }
 
