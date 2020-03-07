@@ -114,28 +114,30 @@ func fromDict(dict map[string]interface{}) (r *Room, err error) {
 	if err != nil {
 		return nil, fmt.Errorf("room %q: invalid roomsize", r.Name)
 	}
-	scaling := optionalSlice(dict["scaling"])
-	r.Scaling = make([]Scalings, len(scaling))
-	for i, sc := range scaling {
-		scalings := Scalings{}
+	simpleScalings := Scalings{}
+	for _, sc := range optionalSlice(dict["scaling"]) {
 		switch sc := sc.(type) {
 		case map[string]interface{}:
-			for j, sx := range optionalStrings(sc["scaling"]) {
+			scalings := Scalings{}
+			for i, sx := range optionalStrings(sc["scaling"]) {
 				s, err := parseScaling(sx)
 				if err != nil {
-					return nil, fmt.Errorf("room %q, scaling [%d]: invalid scaling", r.Name, j)
+					return nil, fmt.Errorf("room %q, scaling [%d]: invalid scaling", r.Name, i)
 				}
 				scalings.Scaling = append(scalings.Scaling, s)
 			}
 			scalings.Trigger = optionalString(sc["trigger"])
+			r.Scaling = append(r.Scaling, scalings)
 		case string:
 			s, err := parseScaling(sc)
 			if err != nil {
 				return nil, fmt.Errorf("room %q: invalid scaling", r.Name)
 			}
-			scalings.Scaling = []Scaling{s}
+			simpleScalings.Scaling = append(simpleScalings.Scaling, s)
 		}
-		r.Scaling[i] = scalings
+	}
+	if len(simpleScalings.Scaling) > 0 {
+		r.Scaling = append(r.Scaling, simpleScalings)
 	}
 	r.Sheet = dict["sheet"].(string)
 	walkboxes := optionalDicts(dict["walkboxes"])
