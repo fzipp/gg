@@ -22,13 +22,13 @@ func parsePoint(s string) (image.Point, error) {
 }
 
 // "{0.75,0.5}"
-func parsePointFloat(s string) (PointFloat, error) {
+func parsePointF(s string) (PointF, error) {
 	var x, y float64
 	_, err := fmt.Sscanf(s, "{%g,%g}", &x, &y)
 	if err != nil {
-		return PointFloat{}, err
+		return PointF{}, err
 	}
-	return PointFloat{X: x, Y: y}, nil
+	return PointF{X: x, Y: y}, nil
 }
 
 // "{{-23,-20},{17,20}}"
@@ -57,9 +57,9 @@ func parseDirection(s string) (Direction, error) {
 }
 
 // "{82,94};{134,94};{142,91};{174,91};{183,94}"
-func parsePolygon(s string) (Polygon, error) {
+func parsePolygon(s string) ([]image.Point, error) {
 	elements := strings.Split(s, ";")
-	polygon := make(Polygon, len(elements))
+	polygon := make([]image.Point, len(elements))
 	for i, element := range elements {
 		v, err := parsePoint(element)
 		if err != nil {

@@ -44,47 +44,49 @@ func fromDict(dict map[string]interface{}) (r *Room, err error) {
 	switch bg := dict["background"].(type) {
 	case string:
 		r.Background = []string{bg}
-	case []string:
-		r.Background = bg
+	case []interface{}:
+		r.Background = optionalStrings(bg)
 	}
 	r.Fullscreen = optionalInt(dict["fullscreen"])
 	r.Height = optionalInt(dict["height"])
-	r.Layers = make([]Layer, 0)
-	for i, layerDict := range optionalDicts(dict["layers"]) {
+	layers := optionalDicts(dict["layers"])
+	r.Layers = make([]Layer, len(layers))
+	for i, layerDict := range layers {
 		layer := Layer{}
 		switch name := layerDict["name"].(type) {
 		case string:
 			layer.Name = []string{name}
-		case []string:
-			layer.Name = name
+		case []interface{}:
+			layer.Name = optionalStrings(name)
 		}
 		switch parallax := layerDict["parallax"].(type) {
 		case string:
-			p, err := parsePointFloat(parallax)
+			p, err := parsePointF(parallax)
 			if err != nil {
 				return nil, fmt.Errorf("room %q, layer %q [%d]: invalid parallax string", r.Name, layer.Name, i)
 			}
 			layer.Parallax = p
 		case float64:
-			layer.Parallax = PointFloat{X: parallax, Y: 1}
+			layer.Parallax = PointF{X: parallax, Y: 1}
 		}
 		layer.ZSort = layerDict["zsort"].(int)
-		r.Layers = append(r.Layers, layer)
+		r.Layers[i] = layer
 	}
-	r.Objects = make([]Object, 0)
-	for i, o := range dict["objects"].([]interface{}) {
+	objects := optionalDicts(dict["objects"])
+	r.Objects = make([]Object, len(objects))
+	for i, objDict := range objects {
 		obj := Object{}
-		objDict := o.(map[string]interface{})
 		obj.Name = objDict["name"].(string)
 		obj.Parent = optionalString(objDict["parent"])
-		obj.Animations = make([]Animation, 0)
-		for _, animDict := range optionalDicts(objDict["animations"]) {
+		animations := optionalDicts(objDict["animations"])
+		obj.Animations = make([]Animation, len(animations))
+		for j, animDict := range animations {
 			anim := Animation{}
 			anim.FPS = optionalFloat(animDict["fps"])
 			anim.Triggers = optionalStrings(animDict["triggers"])
 			anim.Frames = optionalStrings(animDict["triggers"])
 			anim.Name = animDict["name"].(string)
-			obj.Animations = append(obj.Animations, anim)
+			obj.Animations[j] = anim
 		}
 		obj.HotSpot, err = parseRectangle(objDict["hotspot"].(string))
 		if err != nil {
@@ -106,7 +108,7 @@ func fromDict(dict map[string]interface{}) (r *Room, err error) {
 		obj.Prop = optionalBool(objDict["prop"])
 		obj.Spot = optionalBool(objDict["spot"])
 		obj.Trigger = optionalBool(objDict["trigger"])
-		r.Objects = append(r.Objects, obj)
+		r.Objects[i] = obj
 	}
 	r.RoomSize, err = parsePoint(dict["roomsize"].(string))
 	if err != nil {
@@ -130,20 +132,21 @@ func fromDict(dict map[string]interface{}) (r *Room, err error) {
 			if err != nil {
 				return nil, fmt.Errorf("room %q: invalid scaling", r.Name)
 			}
+			scalings.Scaling = append(scalings.Scaling, scaling)
 		}
-		scalings.Scaling = append(scalings.Scaling, scaling)
 	}
 	r.Scalings = scalings
 	r.Sheet = dict["sheet"].(string)
-	r.WalkBoxes = make([]WalkBox, 0)
-	for i, boxDict := range optionalDicts(dict["walkboxes"]) {
+	walkboxes := optionalDicts(dict["walkboxes"])
+	r.WalkBoxes = make([]WalkBox, len(walkboxes))
+	for i, boxDict := range walkboxes {
 		box := WalkBox{}
 		box.Name = optionalString(boxDict["name"])
 		box.Polygon, err = parsePolygon(boxDict["polygon"].(string))
 		if err != nil {
 			return nil, fmt.Errorf("room %q, walkbox %q [%d]: invalid polygon", r.Name, box.Name, i)
 		}
-		r.WalkBoxes = append(r.WalkBoxes, box)
+		r.WalkBoxes[i] = box
 	}
 	return r, nil
 }

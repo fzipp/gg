@@ -21,7 +21,7 @@ type Room struct {
 
 type Layer struct {
 	Name     []string
-	Parallax PointFloat
+	Parallax PointF
 	ZSort    int
 }
 
@@ -48,7 +48,7 @@ type Animation struct {
 
 type WalkBox struct {
 	Name    string
-	Polygon Polygon
+	Polygon []image.Point
 }
 
 type Scalings struct {
@@ -61,9 +61,7 @@ type Scaling struct {
 	At     int
 }
 
-type Polygon []image.Point
-
-type PointFloat struct {
+type PointF struct {
 	X, Y float64
 }
 
