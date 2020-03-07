@@ -34,6 +34,7 @@ go get github.com/fzipp/gg/cmd/yack
 * [ggdict](https://pkg.go.dev/github.com/fzipp/gg/ggdict) Read and write the GGDictionary format.
 * [texts](https://pkg.go.dev/github.com/fzipp/gg/texts) Replace text ID placeholders with texts.
 * [yack](https://pkg.go.dev/github.com/fzipp/gg/yack) Parse and run yack dialog files.
+* [wimpy](https://pkg.go.dev/github.com/fzipp/gg/wimpy) Read wimpy files.
 
 Related, but independent packages:
 
