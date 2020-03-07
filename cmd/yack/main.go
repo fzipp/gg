@@ -30,7 +30,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"path/filepath"
 	"regexp"
 	"time"
 
@@ -92,7 +91,7 @@ func main() {
 	var buf bytes.Buffer
 	err = textTable.ResolveTexts(&buf, file)
 	check(err)
-	dialog, err := yack.Parse(filepath.Base(path), &buf)
+	dialog, err := yack.Read(&buf)
 	check(err)
 	err = file.Close()
 	check(err)
@@ -111,14 +110,13 @@ func run(dialog *yack.Dialog, startActor, startLabel string, debugMode bool) {
 		printChoices(choices, debugMode)
 		prompt := choices.Actor + "> "
 		input := userInput(prompt, 1, len(choices.Options))
-		opt := choices.Options[input-1]
 		fmt.Println()
-		choices = choices.Choose(opt)
+		choices = choices.Choose(input - 1)
 	}
 }
 
 func checkStartLabelExists(dialog *yack.Dialog, startLabel string) {
-	if _, ok := dialog.LabelIndex[startLabel]; !ok {
+	if _, ok := dialog.Labels[startLabel]; !ok {
 		if startLabel == "start" {
 			fail(fmt.Sprintf("Label %q not found. Try passing a different start label with the -l flag.", startLabel))
 		}
@@ -188,4 +186,8 @@ func (t *consoleTalk) Say(actor, text string) {
 	}
 	fmt.Printf("%s: %s\n", actor, text)
 	time.Sleep(time.Duration(len(text)) * 70 * time.Millisecond)
+}
+
+func (t *consoleTalk) ShutUp() {
+	// do nothing
 }

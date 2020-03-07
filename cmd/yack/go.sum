@@ -1,5 +1,5 @@
-github.com/fzipp/gg v0.3.0 h1:yu5+owA+4sfGQx5Ec50MvF0hrbXANAvy7ZilI8XmP1o=
-github.com/fzipp/gg v0.3.0/go.mod h1:4//i6YWoyryB/ipd8lV2VKbln2xPKKDs/uG3EanY/wc=
+github.com/fzipp/gg v0.0.0-20200307164454-d1c815f52485 h1:3iSVouWk43NDvpuQeTUrBQEyd6wHqpmYiJOPvDX+CLE=
+github.com/fzipp/gg v0.0.0-20200307164454-d1c815f52485/go.mod h1:4//i6YWoyryB/ipd8lV2VKbln2xPKKDs/uG3EanY/wc=
 github.com/robertkrimen/otto v0.0.0-20191219234010-c382bd3c16ff h1:+6NUiITWwE5q1KO6SAfUX918c+Tab0+tGAM/mtdlUyA=
 github.com/robertkrimen/otto v0.0.0-20191219234010-c382bd3c16ff/go.mod h1:xvqspoSXJTIpemEonrMDFq6XzwHYYgToXWj5eRX1OtY=
 gopkg.in/sourcemap.v1 v1.0.5 h1:inv58fC9f9J3TK2Y2R1NPntXEn3/wjWHkonhIUODNTI=
