@@ -4,7 +4,9 @@
 
 package wimpy
 
-import "image"
+import (
+	"image"
+)
 
 type Room struct {
 	Name       string
@@ -44,6 +46,10 @@ type Animation struct {
 	FPS      float64
 	Triggers []string
 	Frames   []string
+	Loop     bool
+
+	Flags    int
+	Layers   []Animation
 }
 
 type WalkBox struct {
@@ -73,3 +79,17 @@ const (
 	DirFront
 	DirBack
 )
+
+func (d Direction) String() string {
+	switch d {
+	case DirRight:
+		return "DIR_RIGHT"
+	case DirLeft:
+		return "DIR_LEFT"
+	case DirFront:
+		return "DIR_FRONT"
+	case DirBack:
+		return "DIR_BACK"
+	}
+	return ""
+}

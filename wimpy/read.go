@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package wimpy reads wimpy files.
+// Package wimpy reads and writes wimpy files.
 package wimpy
 
 import (
@@ -24,10 +24,10 @@ func Read(r io.Reader) (*Room, error) {
 	if err != nil {
 		return nil, fmt.Errorf("could not unmarshal wimpy dictionary: %w", err)
 	}
-	return fromDict(dict)
+	return dictToRoom(dict)
 }
 
-func fromDict(dict map[string]interface{}) (r *Room, err error) {
+func dictToRoom(dict map[string]interface{}) (r *Room, err error) {
 	defer func() {
 		msg := recover()
 		if msg == nil {
@@ -41,6 +41,7 @@ func fromDict(dict map[string]interface{}) (r *Room, err error) {
 
 	r = &Room{}
 	r.Name = dict["name"].(string)
+	r.Sheet = dict["sheet"].(string)
 	switch bg := dict["background"].(type) {
 	case string:
 		r.Background = []string{bg}
@@ -78,16 +79,7 @@ func fromDict(dict map[string]interface{}) (r *Room, err error) {
 		obj := Object{}
 		obj.Name = objDict["name"].(string)
 		obj.Parent = optionalString(objDict["parent"])
-		animations := optionalDicts(objDict["animations"])
-		obj.Animations = make([]Animation, len(animations))
-		for j, animDict := range animations {
-			anim := Animation{}
-			anim.FPS = optionalFloat(animDict["fps"])
-			anim.Triggers = optionalStrings(animDict["triggers"])
-			anim.Frames = optionalStrings(animDict["triggers"])
-			anim.Name = animDict["name"].(string)
-			obj.Animations[j] = anim
-		}
+		obj.Animations = readAnimations(objDict["animations"])
 		obj.HotSpot, err = parseRectangle(objDict["hotspot"].(string))
 		if err != nil {
 			return nil, fmt.Errorf("room %q, object %q [%d]: invalid hotspot rectangle", r.Name, obj.Name, i)
@@ -139,7 +131,6 @@ func fromDict(dict map[string]interface{}) (r *Room, err error) {
 	if len(simpleScalings.Scaling) > 0 {
 		r.Scaling = append(r.Scaling, simpleScalings)
 	}
-	r.Sheet = dict["sheet"].(string)
 	walkboxes := optionalDicts(dict["walkboxes"])
 	r.WalkBoxes = make([]WalkBox, len(walkboxes))
 	for i, boxDict := range walkboxes {
@@ -152,6 +143,23 @@ func fromDict(dict map[string]interface{}) (r *Room, err error) {
 		r.WalkBoxes[i] = box
 	}
 	return r, nil
+}
+
+func readAnimations(x interface{}) []Animation {
+	dicts := optionalDicts(x)
+	animations := make([]Animation, len(dicts))
+	for i, dict := range dicts {
+		anim := Animation{}
+		anim.Name = dict["name"].(string)
+		anim.FPS = optionalFloat(dict["fps"])
+		anim.Triggers = optionalStrings(dict["triggers"])
+		anim.Frames = optionalStrings(dict["frames"])
+		anim.Loop = optionalBool(dict["loop"])
+		anim.Flags = optionalInt(dict["flags"])
+		anim.Layers = readAnimations(dict["layers"])
+		animations[i] = anim
+	}
+	return animations
 }
 
 func optionalBool(x interface{}) bool {

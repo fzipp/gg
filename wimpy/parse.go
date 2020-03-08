@@ -44,16 +44,16 @@ func parseRectangle(s string) (image.Rectangle, error) {
 // "DIR_LEFT"
 func parseDirection(s string) (Direction, error) {
 	switch s {
+	case "DIR_RIGHT":
+		return DirRight, nil
+	case "DIR_LEFT":
+		return DirLeft, nil
 	case "DIR_FRONT":
 		return DirFront, nil
 	case "DIR_BACK":
 		return DirBack, nil
-	case "DIR_LEFT":
-		return DirLeft, nil
-	case "DIR_RIGHT":
-		return DirRight, nil
 	}
-	return Direction(0), fmt.Errorf("unknown direction: %q'", s)
+	return Direction(0), fmt.Errorf("invalid direction: %q", s)
 }
 
 // "{82,94};{134,94};{142,91};{174,91};{183,94}"
@@ -61,11 +61,11 @@ func parsePolygon(s string) ([]image.Point, error) {
 	elements := strings.Split(s, ";")
 	polygon := make([]image.Point, len(elements))
 	for i, element := range elements {
-		v, err := parsePoint(element)
+		pt, err := parsePoint(element)
 		if err != nil {
 			return nil, err
 		}
-		polygon[i] = v
+		polygon[i] = pt
 	}
 	return polygon, nil
 }
