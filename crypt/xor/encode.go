@@ -13,6 +13,7 @@ import (
 type encoder struct {
 	key    *Key
 	xorSum byte
+	cursor byte
 }
 
 func newEncoder(key *Key, expectedSize int64) transform.Transformer {
@@ -22,8 +23,9 @@ func newEncoder(key *Key, expectedSize int64) transform.Transformer {
 func (e *encoder) Transform(dst, src []byte) {
 	for i, b := range src {
 		x := b ^ e.xorSum
-		dst[i] = x ^ e.key.MagicBytes[i&0x0F] ^ byte(i)*e.key.Multiplier
+		dst[i] = x ^ e.key.MagicBytes[e.cursor&0x0F] ^ e.cursor*e.key.Multiplier
 		e.xorSum = x
+		e.cursor++
 	}
 }
 
