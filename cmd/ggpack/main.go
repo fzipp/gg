@@ -50,7 +50,7 @@ Flags:
     -create   Create a new pack and add the files from the file system
               matching the pattern.
     -key      Name of the key to decrypt/encrypt the data via XOR.
-              Possible names: 56ad (default), 5bad, 566d, 5b6d
+              Possible names: 56ad (default), 5bad, 566d, 5b6d, delores
 
 Examples:
     ggpack -list "*" ExamplePackage.ggpack1
