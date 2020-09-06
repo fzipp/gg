@@ -74,10 +74,10 @@ func (p *Packer) Write(filenameInPack string, r io.Reader, size int64) error {
 
 	fileOffset := p.offset
 	var w io.Writer = p.writer
+	w = xor.EncodingWriter(w, p.xorKey, size)
 	if filepath.Ext(filenameInPack) == ".bnut" {
 		w = bnut.EncodingWriter(w, size)
 	}
-	w = xor.EncodingWriter(w, p.xorKey, size)
 	n, err := io.CopyN(w, r, size)
 	p.offset += n
 	if err != nil {
