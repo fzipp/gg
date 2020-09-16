@@ -48,8 +48,8 @@ type Animation struct {
 	Frames   []string
 	Loop     bool
 
-	Flags    int
-	Layers   []Animation
+	Flags  int
+	Layers []Animation
 }
 
 type WalkBox struct {
