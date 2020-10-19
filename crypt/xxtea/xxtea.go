@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// xxtea is an implementation of the XXTEA (Corrected Block TEA) block cipher
-// as described in:
+// Package xxtea is an implementation of the XXTEA (Corrected Block TEA) block
+// cipher as described in:
 // David J. Wheeler and Roger M. Needham (October 1998). "Correction to XTEA".
 // Computer Laboratory, Cambridge University
 // http://www.movable-type.co.uk/scripts/xxtea.pdf
