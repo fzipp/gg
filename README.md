@@ -14,7 +14,8 @@ This project is not related to him or Terrible Toybox, Inc.
 * [ggdict](https://pkg.go.dev/github.com/fzipp/gg/cmd/ggdict) A tool to convert back and forth between the GGDictionary format and JSON.
 * [retext](https://pkg.go.dev/github.com/fzipp/gg/cmd/retext) A tool to replace ID placeholders like @12345 in files with texts from a text table file in TSV format.
 * [nutfmt](https://pkg.go.dev/github.com/fzipp/gg/cmd/nutfmt) A tool to indent [Squirrel](http://squirrel-lang.org/) script files.
-* [yack](https://pkg.go.dev/github.com/fzipp/gg/cmd/yack@v0.0.0-20200303190959-5f731a2a50db?tab=doc) A tool to run yack dialogs.
+* [yack](https://pkg.go.dev/github.com/fzipp/gg/cmd/yack@v0.0.0-20200303190959-5f731a2a50db?tab=doc) A tool to run Yack dialogs.
+* [ggsavegame](https://pkg.go.dev/github.com/fzipp/gg/cmd/ggsavegame) A tool to convert savegame files to JSON format and back.
 
 ### Installation
 
@@ -26,6 +27,7 @@ go get github.com/fzipp/gg/cmd/ggdict
 go get github.com/fzipp/gg/cmd/retext
 go get github.com/fzipp/gg/cmd/nutfmt
 go get github.com/fzipp/gg/cmd/yack
+go get github.com/fzipp/gg/cmd/ggsavegame
 ```
 
 ## Go packages
@@ -33,8 +35,9 @@ go get github.com/fzipp/gg/cmd/yack
 * [ggpack](https://pkg.go.dev/github.com/fzipp/gg/ggpack) Read and write ggpack files.
 * [ggdict](https://pkg.go.dev/github.com/fzipp/gg/ggdict) Read and write the GGDictionary format.
 * [texts](https://pkg.go.dev/github.com/fzipp/gg/texts) Replace text ID placeholders with texts.
-* [yack](https://pkg.go.dev/github.com/fzipp/gg/yack) Read and run yack dialogs.
-* [wimpy](https://pkg.go.dev/github.com/fzipp/gg/wimpy) Read wimpy files.
+* [yack](https://pkg.go.dev/github.com/fzipp/gg/yack) Read and run Yack dialogs.
+* [wimpy](https://pkg.go.dev/github.com/fzipp/gg/wimpy) Read and write Wimpy room files.
+* [savegame](https://pkg.go.dev/github.com/fzipp/gg/savegame) Read and write savegame files.
 
 Related, but independent packages:
 
