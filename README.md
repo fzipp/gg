@@ -1,5 +1,9 @@
 # gg
 
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/fzipp/gg)](https://pkg.go.dev/github.com/fzipp/gg)
+[![Build Status](https://travis-ci.com/fzipp/gg.svg?branch=master)](https://travis-ci.com/fzipp/gg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/fzipp/gg)](https://goreportcard.com/report/github.com/fzipp/gg)
+
 A set of command line tools and [Go](https://golang.org) packages to work with
 [Thimbleweed Park](https://thimbleweedpark.com/) data files.
 
