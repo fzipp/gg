@@ -5,6 +5,7 @@
 package savegame
 
 import (
+	"encoding/binary"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -21,6 +22,10 @@ var key = xxtea.Key{
 	0x9B4BA022,
 }
 
+var endianness = binary.LittleEndian
+
+const lenFooter = 16
+
 func Load(path string) (map[string]interface{}, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -36,6 +41,9 @@ func Read(r io.Reader) (map[string]interface{}, error) {
 		return nil, fmt.Errorf("could not read savegame data: %w", err)
 	}
 	decrypted := xxtea.Decrypt(data, key)
+	if !isChecksumOk(decrypted) {
+		return nil, fmt.Errorf("invalid checksum for savegame data")
+	}
 	dict, err := ggdict.Unmarshal(decrypted)
 	if err != nil {
 		return nil, fmt.Errorf("could not unmarshal savegame data: %w", err)
@@ -54,10 +62,38 @@ func Save(path string, dict map[string]interface{}) error {
 
 func Write(w io.Writer, dict map[string]interface{}) error {
 	data := ggdict.Marshal(dict)
+	data = zeroPad(data, 500_000)
+	sum := checksum(data)
+	footerBytes := make([]byte, lenFooter)
+	endianness.PutUint32(footerBytes, sum)
+	data = append(data, footerBytes...)
 	encrypted := xxtea.Encrypt(data, key)
 	_, err := w.Write(encrypted)
 	if err != nil {
 		return fmt.Errorf("could not write savegame data: %w", err)
 	}
 	return nil
+}
+
+func zeroPad(data []byte, minLen int) []byte {
+	if len(data) >= minLen {
+		return data
+	}
+	lenPadding := minLen - len(data)
+	return append(data, make([]byte, lenPadding)...)
+}
+
+func isChecksumOk(data []byte) bool {
+	checksumIndex := len(data) - lenFooter
+	sumGot := checksum(data[:checksumIndex])
+	sumWant := endianness.Uint32(data[checksumIndex:])
+	return sumGot == sumWant
+}
+
+func checksum(data []byte) uint32 {
+	sum := uint32(0x6583463)
+	for _, b := range data {
+		sum += uint32(b)
+	}
+	return sum
 }
