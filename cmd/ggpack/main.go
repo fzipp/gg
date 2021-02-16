@@ -29,6 +29,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -117,7 +118,9 @@ func main() {
 	check(err)
 	defer pack.Close()
 
-	filenames, err := filterFilenames(pack.List(), pattern)
+	entries, err := pack.ReadDir(".")
+	check(err)
+	filenames, err := filterFilenames(entries, pattern)
 	check(err)
 
 	if *listPattern != "" {
@@ -128,15 +131,15 @@ func main() {
 	}
 }
 
-func filterFilenames(entries []ggpack.DirectoryEntry, pattern string) ([]string, error) {
+func filterFilenames(entries []fs.DirEntry, pattern string) ([]string, error) {
 	var filtered []string
 	for _, entry := range entries {
-		matches, err := filepath.Match(pattern, entry.Filename)
+		matches, err := filepath.Match(pattern, entry.Name())
 		if err != nil {
 			return nil, fmt.Errorf("invalid filename pattern: %s", pattern)
 		}
 		if matches {
-			filtered = append(filtered, entry.Filename)
+			filtered = append(filtered, entry.Name())
 		}
 	}
 	return filtered, nil
@@ -155,7 +158,7 @@ func extractAll(pack *ggpack.Pack, filenames []string) {
 }
 
 func extract(pack *ggpack.Pack, filename string) {
-	packFile, _, err := pack.File(filename)
+	packFile, err := pack.Open(filename)
 	check(err)
 	diskFile, err := os.Create(filename)
 	check(err)

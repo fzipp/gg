@@ -9,9 +9,11 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"sort"
+	"time"
 
 	"github.com/fzipp/gg/crypt/bnut"
 	"github.com/fzipp/gg/crypt/xor"
@@ -19,6 +21,7 @@ import (
 
 type Pack struct {
 	reader    io.ReadSeeker
+	modTime   time.Time
 	directory directory
 	xorKey    *xor.Key
 }
@@ -34,7 +37,11 @@ func OpenUsingKey(path string, key *xor.Key) (*Pack, error) {
 	if err != nil {
 		return nil, fmt.Errorf("could not open file '%s': %w", path, err)
 	}
-	pack := Pack{reader: file, xorKey: key}
+	stat, err := file.Stat()
+	if err != nil {
+		return nil, fmt.Errorf("could get stat of file '%s': %w", path, err)
+	}
+	pack := Pack{reader: file, modTime: stat.ModTime(), xorKey: key}
 	pack.directory, err = pack.readDirectory()
 	if err != nil {
 		file.Close()
@@ -50,31 +57,38 @@ func (p *Pack) Close() error {
 	return nil
 }
 
-func (p *Pack) List() []DirectoryEntry {
-	entries := make([]DirectoryEntry, 0, len(p.directory))
+func (p *Pack) ReadDir(name string) ([]fs.DirEntry, error) {
+	if name != "." {
+		return nil, fs.ErrNotExist // TODO: is this the best error?
+	}
+	list := make([]fs.DirEntry, 0, len(p.directory))
 	for filename, entry := range p.directory {
-		entries = append(entries, DirectoryEntry{
-			Filename: filename,
-			Size:     entry.Size,
+		list = append(list, fileDirEntry{
+			name:    filename,
+			size:    entry.Size,
+			modTime: p.modTime,
 		})
 	}
-	sort.Slice(entries, func(i, j int) bool {
-		return entries[i].Filename < entries[j].Filename
+	sort.Slice(list, func(i, j int) bool {
+		return list[i].Name() < list[j].Name()
 	})
-	return entries
+	return list, nil
 }
 
-func (p *Pack) File(filename string) (r io.Reader, size int64, err error) {
-	entry, exists := p.directory[filename]
+func (p *Pack) Open(name string) (fs.File, error) {
+	entry, exists := p.directory[name]
 	if !exists {
-		return nil, 0, fmt.Errorf("file '%s' does not exist in pack", filename)
+		return nil, fs.ErrNotExist
 	}
-	isBnut := filepath.Ext(filename) == ".bnut"
-	r, err = p.entryReader(entry, isBnut)
+	isBnut := filepath.Ext(name) == ".bnut"
+	r, err := p.entryReader(entry, isBnut)
 	if err != nil {
-		return nil, 0, fmt.Errorf("could not read file '%s' in pack", filename)
+		return nil, fmt.Errorf("could not read file '%s' in pack", name)
 	}
-	return r, entry.Size, nil
+	return packFile{
+		stat: fileDirEntry{name: name, size: entry.Size, modTime: p.modTime},
+		r:    r,
+	}, nil
 }
 
 func (p *Pack) entryReader(entry entry, isBnut bool) (io.Reader, error) {

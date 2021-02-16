@@ -6,14 +6,36 @@ package ggpack
 
 import (
 	"fmt"
+	"io"
+	"io/fs"
+	"time"
 
 	"github.com/fzipp/gg/ggdict"
 )
 
-type DirectoryEntry struct {
-	Filename string
-	Size     int64
+type packFile struct {
+	stat fs.FileInfo
+	r    io.Reader
 }
+
+func (f packFile) Stat() (fs.FileInfo, error)       { return f.stat, nil }
+func (f packFile) Read(b []byte) (n int, err error) { return f.r.Read(b) }
+func (f packFile) Close() error                     { return nil }
+
+type fileDirEntry struct {
+	name    string
+	size    int64
+	modTime time.Time
+}
+
+func (d fileDirEntry) Name() string               { return d.name }
+func (d fileDirEntry) IsDir() bool                { return false }
+func (d fileDirEntry) Type() fs.FileMode          { return 0 }
+func (d fileDirEntry) Info() (fs.FileInfo, error) { return d, nil }
+func (d fileDirEntry) Size() int64                { return d.size }
+func (d fileDirEntry) Mode() fs.FileMode          { return d.Type() }
+func (d fileDirEntry) ModTime() time.Time         { return d.modTime }
+func (d fileDirEntry) Sys() interface{}           { return nil }
 
 type directory map[string]entry
 

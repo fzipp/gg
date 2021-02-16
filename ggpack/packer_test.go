@@ -55,7 +55,7 @@ func filePackRoundTrip(t *testing.T, dataFileName string) {
 	}
 	defer pack.Close()
 
-	r, _, err := pack.File(dataFileName)
+	r, err := pack.Open(dataFileName)
 	if err != nil {
 		t.Errorf("could not access file from ggpack: %s", err)
 	}
