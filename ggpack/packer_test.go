@@ -5,7 +5,7 @@
 package ggpack
 
 import (
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -22,7 +22,7 @@ func TestPackRoundTripBnutFile(t *testing.T) {
 
 func filePackRoundTrip(t *testing.T, dataFileName string) {
 	packFilePath := "test.ggpack"
-	packFile, err := ioutil.TempFile("", packFilePath)
+	packFile, err := os.CreateTemp("", packFilePath)
 	if err != nil {
 		t.Errorf("could not create pack file: %s", err)
 	}
@@ -35,7 +35,7 @@ func filePackRoundTrip(t *testing.T, dataFileName string) {
 	}
 
 	dataFilePath := filepath.Join("testdata", dataFileName)
-	original, err := ioutil.ReadFile(dataFilePath)
+	original, err := os.ReadFile(dataFilePath)
 	if err != nil {
 		t.Errorf("could not read test data from file: %s", err)
 	}
@@ -59,7 +59,7 @@ func filePackRoundTrip(t *testing.T, dataFileName string) {
 	if err != nil {
 		t.Errorf("could not access file from ggpack: %s", err)
 	}
-	decoded, err := ioutil.ReadAll(r)
+	decoded, err := io.ReadAll(r)
 	if err != nil {
 		t.Errorf("could not add file from ggpack: %s", err)
 	}

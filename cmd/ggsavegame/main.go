@@ -23,7 +23,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"github.com/fzipp/gg/savegame"
@@ -81,7 +80,7 @@ func toJSON(path string) {
 }
 
 func fromJSON(path string) {
-	jsonData, err := ioutil.ReadFile(path)
+	jsonData, err := os.ReadFile(path)
 	check(err)
 	dict := make(map[string]interface{})
 	err = json.Unmarshal(jsonData, &dict)

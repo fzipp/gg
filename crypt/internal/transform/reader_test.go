@@ -6,7 +6,7 @@ package transform_test
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"strings"
 	"testing"
 
@@ -24,7 +24,7 @@ func TestReader(t *testing.T) {
 	}
 	for _, tt := range tests {
 		r := transform.NewReader(strings.NewReader(tt.input), upperCaseTransformer{})
-		buf, err := ioutil.ReadAll(r)
+		buf, err := io.ReadAll(r)
 		output := string(buf)
 		if err != nil {
 			t.Errorf("reading %q with transformer returned error: %s", tt.input, err)

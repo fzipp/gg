@@ -5,7 +5,7 @@
 package bnut_test
 
 import (
-	"io/ioutil"
+	"io"
 	"strings"
 	"testing"
 
@@ -23,7 +23,7 @@ func TestDecodingReader(t *testing.T) {
 	}
 	for _, tt := range tests {
 		r := bnut.DecodingReader(strings.NewReader(tt.input), int64(len(tt.input)))
-		buf, err := ioutil.ReadAll(r)
+		buf, err := io.ReadAll(r)
 		output := string(buf)
 		if err != nil {
 			t.Errorf("reading %q with from encryption returned error: %s", tt.input, err)

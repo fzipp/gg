@@ -8,7 +8,6 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 
 	"github.com/fzipp/gg/crypt/xxtea"
@@ -36,7 +35,7 @@ func Load(path string) (map[string]interface{}, error) {
 }
 
 func Read(r io.Reader) (map[string]interface{}, error) {
-	data, err := ioutil.ReadAll(r)
+	data, err := io.ReadAll(r)
 	if err != nil {
 		return nil, fmt.Errorf("could not read savegame data: %w", err)
 	}

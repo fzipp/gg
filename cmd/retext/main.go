@@ -43,7 +43,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 
 	"github.com/fzipp/gg/texts"
@@ -98,7 +97,7 @@ func main() {
 			buf := &bytes.Buffer{}
 			err = processFile(buf, inputFile, textTable)
 			check(err)
-			err = ioutil.WriteFile(inputFile, buf.Bytes(), 0644)
+			err = os.WriteFile(inputFile, buf.Bytes(), 0644)
 			check(err)
 		} else {
 			err := processFile(w, inputFile, textTable)
