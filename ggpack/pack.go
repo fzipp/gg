@@ -7,6 +7,7 @@ package ggpack
 
 import (
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -19,6 +20,8 @@ import (
 	"github.com/fzipp/gg/crypt/xor"
 )
 
+// Pack provides read access to the contents of a ggpack file.
+// It implements the fs.FS, fs.ReadDirFS and io.Closer interfaces.
 type Pack struct {
 	reader    io.ReadSeeker
 	modTime   time.Time
@@ -58,8 +61,11 @@ func (p *Pack) Close() error {
 }
 
 func (p *Pack) ReadDir(name string) ([]fs.DirEntry, error) {
+	if !fs.ValidPath(name) {
+		return nil, &fs.PathError{Op: "readdir", Path: name, Err: fs.ErrInvalid}
+	}
 	if name != "." {
-		return nil, fs.ErrNotExist // TODO: is this the best error?
+		return nil, &fs.PathError{Op: "readdir", Path: name, Err: fs.ErrNotExist}
 	}
 	list := make([]fs.DirEntry, 0, len(p.directory))
 	for filename, entry := range p.directory {
@@ -76,14 +82,21 @@ func (p *Pack) ReadDir(name string) ([]fs.DirEntry, error) {
 }
 
 func (p *Pack) Open(name string) (fs.File, error) {
+	if !fs.ValidPath(name) {
+		return nil, &fs.PathError{Op: "open", Path: name, Err: fs.ErrInvalid}
+	}
+	if name == "." {
+		// TODO: return fs.ReadDirFile implementation for root directory
+		return nil, &fs.PathError{Op: "open", Path: name, Err: errors.New("not yet implemented")}
+	}
 	entry, exists := p.directory[name]
 	if !exists {
-		return nil, fs.ErrNotExist
+		return nil, &fs.PathError{Op: "open", Path: name, Err: fs.ErrNotExist}
 	}
 	isBnut := filepath.Ext(name) == ".bnut"
 	r, err := p.entryReader(entry, isBnut)
 	if err != nil {
-		return nil, fmt.Errorf("could not read file '%s' in pack", name)
+		return nil, &fs.PathError{Op: "open", Path: name, Err: err}
 	}
 	return packFile{
 		stat: fileDirEntry{name: name, size: entry.Size, modTime: p.modTime},
