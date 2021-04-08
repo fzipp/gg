@@ -26,12 +26,12 @@ This project is not related to him or Terrible Toybox, Inc.
 Either download binaries for your operating system from the [latest release](https://github.com/fzipp/gg/releases/latest) or build from source with Go:
 
 ```
-go get github.com/fzipp/gg/cmd/ggpack
-go get github.com/fzipp/gg/cmd/ggdict
-go get github.com/fzipp/gg/cmd/retext
-go get github.com/fzipp/gg/cmd/nutfmt
-go get github.com/fzipp/gg/cmd/yack
-go get github.com/fzipp/gg/cmd/ggsavegame
+go install github.com/fzipp/gg/cmd/ggpack@latest
+go install github.com/fzipp/gg/cmd/ggdict@latest
+go install github.com/fzipp/gg/cmd/retext@latest
+go install github.com/fzipp/gg/cmd/nutfmt@latest
+go install github.com/fzipp/gg/cmd/yack@latest
+go install github.com/fzipp/gg/cmd/ggsavegame@latest
 ```
 
 ## Go packages
