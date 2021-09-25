@@ -5,43 +5,78 @@
 package ggpack
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
+	"sort"
 	"time"
 
 	"github.com/fzipp/gg/ggdict"
 )
 
-type packFile struct {
+type rootDirFile struct {
+	dir    *directory
+	offset int
+}
+
+func (f *rootDirFile) Stat() (fs.FileInfo, error) { return f.dir.info, nil }
+
+func (f *rootDirFile) Read([]byte) (int, error) {
+	return 0, &fs.PathError{Op: "read", Path: ".", Err: errors.New("is a directory")}
+}
+
+func (f *rootDirFile) Close() error { return nil }
+
+func (f *rootDirFile) ReadDir(count int) ([]fs.DirEntry, error) {
+	n := len(f.dir.entries) - f.offset
+	if count > 0 && n > count {
+		n = count
+	}
+	if n == 0 {
+		if count <= 0 {
+			return nil, nil
+		}
+		return nil, io.EOF
+	}
+	list := make([]fs.DirEntry, n)
+	for i := range list {
+		list[i] = f.dir.entries[f.offset+i]
+	}
+	f.offset += n
+	return list, nil
+}
+
+type file struct {
 	stat fs.FileInfo
 	r    io.Reader
 }
 
-func (f packFile) Stat() (fs.FileInfo, error)       { return f.stat, nil }
-func (f packFile) Read(b []byte) (n int, err error) { return f.r.Read(b) }
-func (f packFile) Close() error                     { return nil }
+func (f *file) Stat() (fs.FileInfo, error)       { return f.stat, nil }
+func (f *file) Read(b []byte) (n int, err error) { return f.r.Read(b) }
+func (f *file) Close() error                     { return nil }
 
-type fileDirEntry struct {
-	name    string
-	size    int64
-	modTime time.Time
+type fileInfo struct {
+	name       string
+	mode       fs.FileMode
+	size       int64
+	modTime    time.Time
+	packOffset int64
 }
 
-func (d fileDirEntry) Name() string               { return d.name }
-func (d fileDirEntry) IsDir() bool                { return false }
-func (d fileDirEntry) Type() fs.FileMode          { return 0 }
-func (d fileDirEntry) Info() (fs.FileInfo, error) { return d, nil }
-func (d fileDirEntry) Size() int64                { return d.size }
-func (d fileDirEntry) Mode() fs.FileMode          { return d.Type() }
-func (d fileDirEntry) ModTime() time.Time         { return d.modTime }
-func (d fileDirEntry) Sys() interface{}           { return nil }
+func (fi *fileInfo) Name() string               { return fi.name }
+func (fi *fileInfo) IsDir() bool                { return fi.Mode().IsDir() }
+func (fi *fileInfo) Type() fs.FileMode          { return fi.Mode().Type() }
+func (fi *fileInfo) Info() (fs.FileInfo, error) { return fi, nil }
+func (fi *fileInfo) Size() int64                { return fi.size }
+func (fi *fileInfo) Mode() fs.FileMode          { return fi.mode }
+func (fi *fileInfo) ModTime() time.Time         { return fi.modTime }
+func (fi *fileInfo) Sys() interface{}           { return nil }
 
-type directory map[string]entry
-
-type entry struct {
-	Offset int64
-	Size   int64
+type directory struct {
+	info    fs.FileInfo
+	entries []fs.DirEntry
+	lookup  map[string]*fileInfo
 }
 
 const (
@@ -51,20 +86,24 @@ const (
 	keySize     = "size"
 )
 
-func readDirectory(buf []byte) (directory, error) {
+func readDirectory(buf []byte, root *fileInfo) (*directory, error) {
 	directoryDict, err := ggdict.Unmarshal(buf)
 	if err != nil {
 		return nil, fmt.Errorf("could not read directory: %w", err)
 	}
-	return directoryFrom(directoryDict)
+	return directoryFrom(directoryDict, root)
 }
 
-func directoryFrom(dict map[string]interface{}) (directory, error) {
+func directoryFrom(dict map[string]interface{}, root *fileInfo) (*directory, error) {
 	files, ok := dict[keyFiles].([]interface{})
 	if !ok {
 		return nil, fmt.Errorf("%q is not an array", keyFiles)
 	}
-	directory := make(directory, len(files))
+	dir := &directory{
+		info:    root,
+		lookup:  make(map[string]*fileInfo, len(files)),
+		entries: make([]fs.DirEntry, 0, len(files)),
+	}
 	for _, fileEntry := range files {
 		entryDict := fileEntry.(map[string]interface{})
 		filename, ok := entryDict[keyFilename].(string)
@@ -79,10 +118,18 @@ func directoryFrom(dict map[string]interface{}) (directory, error) {
 		if !ok {
 			return nil, fmt.Errorf("%q is not an int", keySize)
 		}
-		directory[filename] = entry{
-			Offset: int64(offset),
-			Size:   int64(size),
+		fi := &fileInfo{
+			name:       filename,
+			mode:       0,
+			size:       int64(size),
+			modTime:    root.modTime,
+			packOffset: int64(offset),
 		}
+		dir.lookup[filename] = fi
+		dir.entries = append(dir.entries, fi)
 	}
-	return directory, nil
+	sort.Slice(dir.entries, func(i, j int) bool {
+		return dir.entries[i].Name() < dir.entries[j].Name()
+	})
+	return dir, nil
 }

@@ -7,13 +7,11 @@ package ggpack
 
 import (
 	"encoding/binary"
-	"errors"
 	"fmt"
 	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
-	"sort"
 	"time"
 
 	"github.com/fzipp/gg/crypt/bnut"
@@ -25,7 +23,7 @@ import (
 type Pack struct {
 	reader    io.ReadSeeker
 	modTime   time.Time
-	directory directory
+	directory *directory
 	xorKey    *xor.Key
 }
 
@@ -36,18 +34,18 @@ func Open(path string) (*Pack, error) {
 // OpenUsingKey is the same as Open, but uses a different key than the
 // default key (xor.DefaultKey) for XOR decryption of the pack.
 func OpenUsingKey(path string, key *xor.Key) (*Pack, error) {
-	file, err := os.Open(path)
+	f, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("could not open file '%s': %w", path, err)
 	}
-	stat, err := file.Stat()
+	stat, err := f.Stat()
 	if err != nil {
 		return nil, fmt.Errorf("could get stat of file '%s': %w", path, err)
 	}
-	pack := Pack{reader: file, modTime: stat.ModTime(), xorKey: key}
+	pack := Pack{reader: f, modTime: stat.ModTime(), xorKey: key}
 	pack.directory, err = pack.readDirectory()
 	if err != nil {
-		file.Close()
+		f.Close()
 		return nil, fmt.Errorf("could not read pack directory: %w", err)
 	}
 	return &pack, nil
@@ -60,6 +58,10 @@ func (p *Pack) Close() error {
 	return nil
 }
 
+// ReadDir reads the named directory
+// and returns a list of directory entries sorted by filename.
+//
+// The only directory in a Pack is the root directory ".".
 func (p *Pack) ReadDir(name string) ([]fs.DirEntry, error) {
 	if !fs.ValidPath(name) {
 		return nil, &fs.PathError{Op: "readdir", Path: name, Err: fs.ErrInvalid}
@@ -67,18 +69,7 @@ func (p *Pack) ReadDir(name string) ([]fs.DirEntry, error) {
 	if name != "." {
 		return nil, &fs.PathError{Op: "readdir", Path: name, Err: fs.ErrNotExist}
 	}
-	list := make([]fs.DirEntry, 0, len(p.directory))
-	for filename, entry := range p.directory {
-		list = append(list, fileDirEntry{
-			name:    filename,
-			size:    entry.Size,
-			modTime: p.modTime,
-		})
-	}
-	sort.Slice(list, func(i, j int) bool {
-		return list[i].Name() < list[j].Name()
-	})
-	return list, nil
+	return (&rootDirFile{dir: p.directory}).ReadDir(0)
 }
 
 func (p *Pack) Open(name string) (fs.File, error) {
@@ -86,63 +77,62 @@ func (p *Pack) Open(name string) (fs.File, error) {
 		return nil, &fs.PathError{Op: "open", Path: name, Err: fs.ErrInvalid}
 	}
 	if name == "." {
-		// TODO: return fs.ReadDirFile implementation for root directory
-		return nil, &fs.PathError{Op: "open", Path: name, Err: errors.New("not yet implemented")}
+		return &rootDirFile{dir: p.directory}, nil
 	}
-	entry, exists := p.directory[name]
+	fi, exists := p.directory.lookup[name]
 	if !exists {
 		return nil, &fs.PathError{Op: "open", Path: name, Err: fs.ErrNotExist}
 	}
 	isBnut := filepath.Ext(name) == ".bnut"
-	r, err := p.entryReader(entry, isBnut)
+	r, err := p.fileReader(fi, isBnut)
 	if err != nil {
 		return nil, &fs.PathError{Op: "open", Path: name, Err: err}
 	}
-	return packFile{
-		stat: fileDirEntry{name: name, size: entry.Size, modTime: p.modTime},
-		r:    r,
-	}, nil
+	return &file{stat: fi, r: r}, nil
 }
 
-func (p *Pack) entryReader(entry entry, isBnut bool) (io.Reader, error) {
-	_, err := p.reader.Seek(entry.Offset, io.SeekStart)
+func (p *Pack) fileReader(fi *fileInfo, isBnut bool) (io.Reader, error) {
+	_, err := p.reader.Seek(fi.packOffset, io.SeekStart)
 	if err != nil {
 		return nil, fmt.Errorf("could not seek offset: %w", err)
 	}
-	limitedReader := &io.LimitedReader{R: p.reader, N: entry.Size}
-	decodingReader := xor.DecodingReader(limitedReader, p.xorKey, entry.Size)
+	limitedReader := &io.LimitedReader{R: p.reader, N: fi.size}
+	decodingReader := xor.DecodingReader(limitedReader, p.xorKey, fi.size)
 	if isBnut {
-		return bnut.DecodingReader(decodingReader, entry.Size), nil
+		return bnut.DecodingReader(decodingReader, fi.size), nil
 	}
 	return decodingReader, nil
 }
 
-func (p *Pack) readDirectory() (directory, error) {
-	entry, err := p.readDirectoryEntry()
+func (p *Pack) readDirectory() (*directory, error) {
+	root, err := p.readRootInfo()
 	if err != nil {
 		return nil, err
 	}
-	r, err := p.entryReader(entry, false)
+	r, err := p.fileReader(root, false)
 	if err != nil {
 		return nil, err
 	}
-	buf := make([]byte, entry.Size)
+	buf := make([]byte, root.size)
 	_, err = io.ReadFull(r, buf)
 	if err != nil {
 		return nil, fmt.Errorf("could not read directory bytes: %w", err)
 	}
-	return readDirectory(buf)
+	return readDirectory(buf, root)
 }
 
-func (p *Pack) readDirectoryEntry() (entry, error) {
+func (p *Pack) readRootInfo() (*fileInfo, error) {
 	var data struct {
 		Offset, Size uint32
 	}
 	if err := binary.Read(p.reader, binary.LittleEndian, &data); err != nil {
-		return entry{}, fmt.Errorf("could not read directory offset and size: %w", err)
+		return nil, fmt.Errorf("could not read directory offset and size: %w", err)
 	}
-	return entry{
-		Offset: int64(data.Offset),
-		Size:   int64(data.Size),
+	return &fileInfo{
+		name:       ".",
+		mode:       fs.ModeDir,
+		size:       int64(data.Size),
+		modTime:    p.modTime,
+		packOffset: int64(data.Offset),
 	}, nil
 }
