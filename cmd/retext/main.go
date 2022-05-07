@@ -6,36 +6,38 @@
 // table file in TSV (tab-separated values) format referenced by these IDs.
 //
 // Usage:
-//     retext -t text_table_file [-w] [path ...]
+//
+//	retext -t text_table_file [-w] [path ...]
 //
 // Flags:
-//     -t  The text table file. This flag is mandatory. The expected format
-//         of the file is TSV (tab-separated values). The first column contains
-//         the numeric text IDs (without the @ marker), the second column the
-//         texts. The first row is ignored and can contain column headers.
-//     -w  Write result to the source file instead of standard output.
+//
+//	-t  The text table file. This flag is mandatory. The expected format
+//	    of the file is TSV (tab-separated values). The first column contains
+//	    the numeric text IDs (without the @ marker), the second column the
+//	    texts. The first row is ignored and can contain column headers.
+//	-w  Write result to the source file instead of standard output.
 //
 // Example text table file "texts.tsv":
 //
-//    text_id en
-//    20001	Hi, how are you?
-//    20002	Thanks, I'm fine.
+//	text_id en
+//	20001	Hi, how are you?
+//	20002	Thanks, I'm fine.
 //
 // Example input file "story.txt":
 //
-//    She asked "@20001" and he answered "@20002"
+//	She asked "@20001" and he answered "@20002"
 //
 // Example usage:
 //
-//    retext -t texts.tsv story.txt > story_complete.txt
+//	retext -t texts.tsv story.txt > story_complete.txt
 //
 // Example output file "story_complete.txt":
 //
-//    She asked "Hi, how are you?" and he answered "Thanks, I'm fine."
+//	She asked "Hi, how are you?" and he answered "Thanks, I'm fine."
 //
 // Example bulk processing:
 //
-//    retext -t texts.tsv -w *.txt
+//	retext -t texts.tsv -w *.txt
 package main
 
 import (

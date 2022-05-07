@@ -10,19 +10,22 @@
 // as true and false.
 //
 // Usage:
-//     yack [-t texts_file] [-l start_label] [-a start_actor] yack_file
+//
+//	yack [-t texts_file] [-l start_label] [-a start_actor] yack_file
 //
 // Flags:
-//     -t  A text table file in TSV (tab-separated values) format to look up
-//         text IDs (i.e. "@12345") and replace them with actual texts.
-//     -l  The start label. Default: "start"
-//     -a  The start actor. Default: "you"
-//     -d  Show debug information, such as animation tags and script errors.
+//
+//	-t  A text table file in TSV (tab-separated values) format to look up
+//	    text IDs (i.e. "@12345") and replace them with actual texts.
+//	-l  The start label. Default: "start"
+//	-a  The start actor. Default: "you"
+//	-d  Show debug information, such as animation tags and script errors.
 //
 // Examples:
-//     yack ExampleDialog.yack
-//     yack -t ExampleTexts.tsv ExampleDialog.yack
-//     yack -t ExampleTexts.tsv -l main ExampleDialog.yack
+//
+//	yack ExampleDialog.yack
+//	yack -t ExampleTexts.tsv ExampleDialog.yack
+//	yack -t ExampleTexts.tsv -l main ExampleDialog.yack
 package main
 
 import (

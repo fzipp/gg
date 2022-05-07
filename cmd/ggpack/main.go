@@ -5,24 +5,27 @@
 // A tool to inspect, unpack or create "ggpack" files.
 //
 // Usage:
-//     ggpack -list|-extract|-create "filename_pattern" [-key name] ggpack_file
+//
+//	ggpack -list|-extract|-create "filename_pattern" [-key name] ggpack_file
 //
 // Flags:
-//     -list     List files in the pack matching the pattern.
-//     -extract  Extract the files from the pack matching the pattern to
-//               the current working directory.
-//     -create   Create a new pack and add the files from the file system
-//               matching the pattern.
-//     -key      Name of the key to decrypt/encrypt the data via XOR.
-//               Possible names: 56ad (default), 5bad, 566d, 5b6d
+//
+//	-list     List files in the pack matching the pattern.
+//	-extract  Extract the files from the pack matching the pattern to
+//	          the current working directory.
+//	-create   Create a new pack and add the files from the file system
+//	          matching the pattern.
+//	-key      Name of the key to decrypt/encrypt the data via XOR.
+//	          Possible names: 56ad (default), 5bad, 566d, 5b6d
 //
 // Examples:
-//     ggpack -list "*" ExamplePackage.ggpack1
-//     ggpack -list "*.tsv" ExamplePackage.ggpack1
-//     ggpack -extract "ExampleSheet.png" ExamplePackage.ggpack1
-//     ggpack -extract "*.txt" ExamplePackage.ggpack1
-//     ggpack -extract "*" ExamplePackage.ggpack1
-//     ggpack -create "*" ExamplePackage.ggpack1`
+//
+//	ggpack -list "*" ExamplePackage.ggpack1
+//	ggpack -list "*.tsv" ExamplePackage.ggpack1
+//	ggpack -extract "ExampleSheet.png" ExamplePackage.ggpack1
+//	ggpack -extract "*.txt" ExamplePackage.ggpack1
+//	ggpack -extract "*" ExamplePackage.ggpack1
+//	ggpack -create "*" ExamplePackage.ggpack1`
 package main
 
 import (

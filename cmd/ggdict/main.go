@@ -10,19 +10,22 @@
 // files are stored in this format within a "ggpack" file.
 //
 // Usage:
-//     ggdict -to-json|-from-json path
+//
+//	ggdict -to-json|-from-json path
 //
 // Flags:
-//     -to-json    Converts the given GGDictionary file to JSON format on
-//                 standard output.
-//     -from-json  Converts the given JSON file to GGDictionary format on
-//                 standard output. You might want to redirect it to a file,
-//                 since it is a binary format.
+//
+//	-to-json    Converts the given GGDictionary file to JSON format on
+//	            standard output.
+//	-from-json  Converts the given JSON file to GGDictionary format on
+//	            standard output. You might want to redirect it to a file,
+//	            since it is a binary format.
 //
 // Examples:
-//     ggdict -to-json Example.wimpy > Example.wimpy.json
-//     ggdict -from-json Example.wimpy.json > Example.wimpy
-//     ggdict -to-json ExampleAnimation.json > ExampleAnimation.really.json
+//
+//	ggdict -to-json Example.wimpy > Example.wimpy.json
+//	ggdict -from-json Example.wimpy.json > Example.wimpy
+//	ggdict -to-json ExampleAnimation.json > ExampleAnimation.really.json
 package main
 
 import (

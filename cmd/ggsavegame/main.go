@@ -5,18 +5,21 @@
 // A tool to decrypt and encrypt Thimbleweed Park savegame files.
 //
 // Usage:
-//     ggsavegame -to-json|-from-json savegame_file
+//
+//	ggsavegame -to-json|-from-json savegame_file
 //
 // Flags:
-//     -to-json    Converts the given savegame file to JSON format on
-//                 standard output.
-//     -from-json  Converts the given JSON file to savegame format on
-//                 standard output. You might want to redirect it to a file,
-//                 since it is a binary format.
+//
+//	-to-json    Converts the given savegame file to JSON format on
+//	            standard output.
+//	-from-json  Converts the given JSON file to savegame format on
+//	            standard output. You might want to redirect it to a file,
+//	            since it is a binary format.
 //
 // Examples:
-//     ggsavegame -to-json Savegame1.save > Savegame1.json
-//     ggsavegame -from-json Savegame1.json > Savegame1.save
+//
+//	ggsavegame -to-json Savegame1.save > Savegame1.json
+//	ggsavegame -from-json Savegame1.json > Savegame1.save
 package main
 
 import (

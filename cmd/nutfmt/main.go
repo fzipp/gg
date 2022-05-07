@@ -8,15 +8,18 @@
 // in this module.
 //
 // Usage:
-//     nutfmt [-w] [path ...]
+//
+//	nutfmt [-w] [path ...]
 //
 // Flags:
-//     -w  Write result to the source file instead of standard output.
+//
+//	-w  Write result to the source file instead of standard output.
 //
 // Examples:
-//     nutfmt Example.bnut | less
-//     nutfmt -w Example.bnut
-//     nutfmt -w *.bnut
+//
+//	nutfmt Example.bnut | less
+//	nutfmt -w Example.bnut
+//	nutfmt -w *.bnut
 package main
 
 import (
