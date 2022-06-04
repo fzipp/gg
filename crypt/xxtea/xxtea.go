@@ -6,7 +6,7 @@
 // cipher as described in:
 // David J. Wheeler and Roger M. Needham (October 1998). "Correction to XTEA".
 // Computer Laboratory, Cambridge University
-// http://www.movable-type.co.uk/scripts/xxtea.pdf
+// https://www.movable-type.co.uk/scripts/xxtea.pdf
 package xxtea
 
 // Key is a 128 bit key.
