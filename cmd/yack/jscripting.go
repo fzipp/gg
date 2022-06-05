@@ -27,7 +27,7 @@ func newJScripting() *jscripting {
 	return s
 }
 
-func (s *jscripting) Eval(code string) (result interface{}, err error) {
+func (s *jscripting) Eval(code string) (result any, err error) {
 	code = squirrelToJS(code)
 	val, err := s.vm.Run(code)
 	if err != nil {

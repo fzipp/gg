@@ -98,7 +98,7 @@ func toJSON(path string) {
 func fromJSON(path string) {
 	jsonData, err := os.ReadFile(path)
 	check(err)
-	dict := make(map[string]interface{})
+	dict := make(map[string]any)
 	err = json.Unmarshal(jsonData, &dict)
 	check(err)
 	_, err = os.Stdout.Write(ggdict.Marshal(dict))
@@ -111,7 +111,7 @@ func check(err error) {
 	}
 }
 
-func fail(message interface{}) {
+func fail(message any) {
 	_, _ = fmt.Fprintln(os.Stderr, message)
 	os.Exit(1)
 }

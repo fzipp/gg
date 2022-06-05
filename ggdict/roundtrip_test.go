@@ -12,11 +12,11 @@ import (
 )
 
 func TestRoundTrip(t *testing.T) {
-	dict := map[string]interface{}{
+	dict := map[string]any{
 		"name":    "Test",
 		"count":   4,
-		"numbers": []interface{}{0.5, 3, 2.6, 1.4},
-		"subobject": map[string]interface{}{
+		"numbers": []any{0.5, 3, 2.6, 1.4},
+		"subobject": map[string]any{
 			"title": "Test 2",
 			"id":    0,
 		},

@@ -25,7 +25,7 @@ var endianness = binary.LittleEndian
 
 const lenFooter = 16
 
-func Load(path string) (map[string]interface{}, error) {
+func Load(path string) (map[string]any, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("could not open savegame file: %w", err)
@@ -34,7 +34,7 @@ func Load(path string) (map[string]interface{}, error) {
 	return Read(f)
 }
 
-func Read(r io.Reader) (map[string]interface{}, error) {
+func Read(r io.Reader) (map[string]any, error) {
 	data, err := io.ReadAll(r)
 	if err != nil {
 		return nil, fmt.Errorf("could not read savegame data: %w", err)
@@ -50,7 +50,7 @@ func Read(r io.Reader) (map[string]interface{}, error) {
 	return dict, nil
 }
 
-func Save(path string, dict map[string]interface{}) error {
+func Save(path string, dict map[string]any) error {
 	f, err := os.Create(path)
 	if err != nil {
 		return fmt.Errorf("could not open savegame file: %w", err)
@@ -59,7 +59,7 @@ func Save(path string, dict map[string]interface{}) error {
 	return Write(f, dict)
 }
 
-func Write(w io.Writer, dict map[string]interface{}) error {
+func Write(w io.Writer, dict map[string]any) error {
 	data := ggdict.Marshal(dict)
 	data = zeroPad(data, 500_000)
 	sum := checksum(data)

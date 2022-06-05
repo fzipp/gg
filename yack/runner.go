@@ -65,7 +65,7 @@ type ChoiceOption struct {
 
 type noScripting struct{}
 
-func (s noScripting) Eval(code string) (result interface{}, err error) {
+func (s noScripting) Eval(code string) (result any, err error) {
 	// do nothing, always return true
 	return true, nil
 }

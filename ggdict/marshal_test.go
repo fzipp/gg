@@ -13,7 +13,7 @@ import (
 
 func TestMarshal(t *testing.T) {
 	tests := []struct {
-		dict map[string]interface{}
+		dict map[string]any
 		want []byte
 	}{
 		{nil, []byte{
@@ -39,9 +39,9 @@ func TestMarshal(t *testing.T) {
 			0x8,
 			// no strings
 		}},
-		{map[string]interface{}{
-			"key_array": []interface{}{"test", 14, 3.2},
-			"key_dictionary": map[string]interface{}{
+		{map[string]any{
+			"key_array": []any{"test", 14, 3.2},
+			"key_dictionary": map[string]any{
 				"key_a": 26,
 				"key_b": 54.8,
 				"key_c": "test",

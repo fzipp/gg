@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-func Marshal(dict map[string]interface{}) []byte {
+func Marshal(dict map[string]any) []byte {
 	m := newMarshaller()
 	m.writeRawInt(formatSignature)
 	m.writeRawInt(1)
@@ -30,13 +30,13 @@ func newMarshaller() *marshaller {
 	return &marshaller{keyIndex: make(map[string]int)}
 }
 
-func (m *marshaller) writeValue(value interface{}) {
+func (m *marshaller) writeValue(value any) {
 	switch v := value.(type) {
 	case nil:
 		m.writeNull()
-	case map[string]interface{}:
+	case map[string]any:
 		m.writeDictionary(v)
-	case []interface{}:
+	case []any:
 		m.writeArray(v)
 	case string:
 		m.writeString(v)
@@ -65,7 +65,7 @@ func (m *marshaller) writeNull() {
 	m.writeTypeMarker(typeNull)
 }
 
-func (m *marshaller) writeDictionary(d map[string]interface{}) {
+func (m *marshaller) writeDictionary(d map[string]any) {
 	// sorted keys for reproducible results
 	keys := make([]string, 0, len(d))
 	for k := range d {
@@ -82,7 +82,7 @@ func (m *marshaller) writeDictionary(d map[string]interface{}) {
 	m.writeTypeMarker(typeDictionary)
 }
 
-func (m *marshaller) writeArray(a []interface{}) {
+func (m *marshaller) writeArray(a []any) {
 	m.writeTypeMarker(typeArray)
 	m.writeRawInt(len(a))
 	for _, v := range a {

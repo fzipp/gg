@@ -10,7 +10,7 @@ import (
 	"strconv"
 )
 
-func Unmarshal(data []byte) (map[string]interface{}, error) {
+func Unmarshal(data []byte) (map[string]any, error) {
 	u := &unmarshaller{buf: data}
 
 	signature := u.readRawInt()
@@ -40,7 +40,7 @@ func Unmarshal(data []byte) (map[string]interface{}, error) {
 	if err != nil {
 		return nil, fmt.Errorf("could not read root: %w", err)
 	}
-	dict, ok := root.(map[string]interface{})
+	dict, ok := root.(map[string]any)
 	if !ok {
 		return nil, errors.New("root is not a dictionary")
 	}
@@ -53,7 +53,7 @@ type unmarshaller struct {
 	offsetIndex offsets
 }
 
-func (u *unmarshaller) readValue() (interface{}, error) {
+func (u *unmarshaller) readValue() (any, error) {
 	switch valueType := u.readTypeMarker(); valueType {
 	case typeNull:
 		return nil, nil
@@ -78,9 +78,9 @@ func (u *unmarshaller) readTypeMarker() valueType {
 	return valueType(u.readByte())
 }
 
-func (u *unmarshaller) readDictionary() (map[string]interface{}, error) {
+func (u *unmarshaller) readDictionary() (map[string]any, error) {
 	length := u.readRawInt()
-	dictionary := make(map[string]interface{}, length)
+	dictionary := make(map[string]any, length)
 	for i := 0; i < length; i++ {
 		key := u.readString()
 		value, err := u.readValue()
@@ -95,9 +95,9 @@ func (u *unmarshaller) readDictionary() (map[string]interface{}, error) {
 	return dictionary, nil
 }
 
-func (u *unmarshaller) readArray() ([]interface{}, error) {
+func (u *unmarshaller) readArray() ([]any, error) {
 	length := u.readRawInt()
-	array := make([]interface{}, length)
+	array := make([]any, length)
 	for i := 0; i < length; i++ {
 		value, err := u.readValue()
 		if err != nil {

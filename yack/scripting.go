@@ -8,5 +8,5 @@ package yack
 // scripting language. It can be used to plug in an interpreter or VM for
 // any scripting language, e.g. Squirrel, Lua or JavaScript.
 type Scripting interface {
-	Eval(code string) (result interface{}, err error)
+	Eval(code string) (result any, err error)
 }

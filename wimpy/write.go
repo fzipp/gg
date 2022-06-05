@@ -18,8 +18,8 @@ func Write(w io.Writer, r *Room) (n int, err error) {
 	return w.Write(ggdict.Marshal(roomToDict(r)))
 }
 
-func roomToDict(r *Room) map[string]interface{} {
-	dict := make(map[string]interface{})
+func roomToDict(r *Room) map[string]any {
+	dict := make(map[string]any)
 	dict["name"] = r.Name
 	dict["sheet"] = r.Sheet
 	if len(r.Background) == 1 {
@@ -33,9 +33,9 @@ func roomToDict(r *Room) map[string]interface{} {
 	if r.Height != 0 {
 		dict["height"] = r.Height
 	}
-	layers := make([]interface{}, len(r.Layers))
+	layers := make([]any, len(r.Layers))
 	for i, l := range r.Layers {
-		layer := make(map[string]interface{})
+		layer := make(map[string]any)
 		if len(l.Name) == 1 {
 			layer["name"] = l.Name[0]
 		} else {
@@ -52,9 +52,9 @@ func roomToDict(r *Room) map[string]interface{} {
 	if len(layers) > 0 {
 		dict["layers"] = layers
 	}
-	objects := make([]interface{}, len(r.Objects))
+	objects := make([]any, len(r.Objects))
 	for i, o := range r.Objects {
-		obj := make(map[string]interface{})
+		obj := make(map[string]any)
 		obj["name"] = o.Name
 		if o.Parent != "" {
 			obj["parent"] = o.Parent
@@ -85,9 +85,9 @@ func roomToDict(r *Room) map[string]interface{} {
 	if len(r.Scaling) == 1 && r.Scaling[0].Trigger == "" {
 		dict["scaling"] = scalingsToSlice(r.Scaling[0].Scaling)
 	} else if len(r.Scaling) > 0 {
-		scaling := make([]interface{}, len(r.Scaling))
+		scaling := make([]any, len(r.Scaling))
 		for i, sc := range r.Scaling {
-			s := make(map[string]interface{})
+			s := make(map[string]any)
 			s["scaling"] = scalingsToSlice(sc.Scaling)
 			if sc.Trigger != "" {
 				s["trigger"] = sc.Trigger
@@ -96,9 +96,9 @@ func roomToDict(r *Room) map[string]interface{} {
 		}
 		dict["scaling"] = scaling
 	}
-	walkboxes := make([]interface{}, len(r.WalkBoxes))
+	walkboxes := make([]any, len(r.WalkBoxes))
 	for i, wb := range r.WalkBoxes {
-		box := make(map[string]interface{})
+		box := make(map[string]any)
 		if wb.Name != "" {
 			box["name"] = wb.Name
 		}
@@ -109,10 +109,10 @@ func roomToDict(r *Room) map[string]interface{} {
 	return dict
 }
 
-func animationsToSlice(anims []Animation) []interface{} {
-	slice := make([]interface{}, len(anims))
+func animationsToSlice(anims []Animation) []any {
+	slice := make([]any, len(anims))
 	for i, a := range anims {
-		anim := make(map[string]interface{})
+		anim := make(map[string]any)
 		anim["name"] = a.Name
 		if a.FPS != 0 {
 			anim["fps"] = a.FPS
@@ -137,8 +137,8 @@ func animationsToSlice(anims []Animation) []interface{} {
 	return slice
 }
 
-func stringsToSlice(a []string) []interface{} {
-	slice := make([]interface{}, len(a))
+func stringsToSlice(a []string) []any {
+	slice := make([]any, len(a))
 	for i, s := range a {
 		slice[i] = s
 	}
@@ -152,8 +152,8 @@ func boolToInt(b bool) int {
 	return 0
 }
 
-func scalingsToSlice(s []Scaling) []interface{} {
-	slice := make([]interface{}, len(s))
+func scalingsToSlice(s []Scaling) []any {
+	slice := make([]any, len(s))
 	for i, sc := range s {
 		slice[i] = formatScaling(sc)
 	}

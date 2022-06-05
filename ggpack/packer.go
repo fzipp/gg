@@ -21,7 +21,7 @@ type Packer struct {
 	writer   io.WriteSeeker
 	offset   int64
 	xorKey   *xor.Key
-	files    []interface{}
+	files    []any
 	finished bool
 }
 
@@ -84,7 +84,7 @@ func (p *Packer) Write(filenameInPack string, r io.Reader, size int64) error {
 		return fmt.Errorf("could not copy file data to pack: %w", err)
 	}
 
-	p.files = append(p.files, map[string]interface{}{
+	p.files = append(p.files, map[string]any{
 		"filename": filenameInPack,
 		"offset":   int(fileOffset),
 		"size":     int(size),
@@ -98,7 +98,7 @@ func (p *Packer) Finish() error {
 		return errors.New("pack already finished")
 	}
 
-	directory := map[string]interface{}{
+	directory := map[string]any{
 		"files": p.files,
 	}
 	dirOffset := p.offset

@@ -71,7 +71,7 @@ func (fi *fileInfo) Info() (fs.FileInfo, error) { return fi, nil }
 func (fi *fileInfo) Size() int64                { return fi.size }
 func (fi *fileInfo) Mode() fs.FileMode          { return fi.mode }
 func (fi *fileInfo) ModTime() time.Time         { return fi.modTime }
-func (fi *fileInfo) Sys() interface{}           { return nil }
+func (fi *fileInfo) Sys() any                   { return nil }
 
 type directory struct {
 	info    fs.FileInfo
@@ -94,8 +94,8 @@ func readDirectory(buf []byte, root *fileInfo) (*directory, error) {
 	return directoryFrom(directoryDict, root)
 }
 
-func directoryFrom(dict map[string]interface{}, root *fileInfo) (*directory, error) {
-	files, ok := dict[keyFiles].([]interface{})
+func directoryFrom(dict map[string]any, root *fileInfo) (*directory, error) {
+	files, ok := dict[keyFiles].([]any)
 	if !ok {
 		return nil, fmt.Errorf("%q is not an array", keyFiles)
 	}
@@ -105,7 +105,7 @@ func directoryFrom(dict map[string]interface{}, root *fileInfo) (*directory, err
 		entries: make([]fs.DirEntry, 0, len(files)),
 	}
 	for _, fileEntry := range files {
-		entryDict := fileEntry.(map[string]interface{})
+		entryDict := fileEntry.(map[string]any)
 		filename, ok := entryDict[keyFilename].(string)
 		if !ok {
 			return nil, fmt.Errorf("%q is not a string", keyFilename)

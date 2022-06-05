@@ -27,7 +27,7 @@ func Read(r io.Reader) (*Room, error) {
 	return dictToRoom(dict)
 }
 
-func dictToRoom(dict map[string]interface{}) (r *Room, err error) {
+func dictToRoom(dict map[string]any) (r *Room, err error) {
 	defer func() {
 		msg := recover()
 		if msg == nil {
@@ -45,7 +45,7 @@ func dictToRoom(dict map[string]interface{}) (r *Room, err error) {
 	switch bg := dict["background"].(type) {
 	case string:
 		r.Background = []string{bg}
-	case []interface{}:
+	case []any:
 		r.Background = optionalStrings(bg)
 	}
 	r.Fullscreen = optionalInt(dict["fullscreen"])
@@ -57,7 +57,7 @@ func dictToRoom(dict map[string]interface{}) (r *Room, err error) {
 		switch name := layerDict["name"].(type) {
 		case string:
 			layer.Name = []string{name}
-		case []interface{}:
+		case []any:
 			layer.Name = optionalStrings(name)
 		}
 		switch parallax := layerDict["parallax"].(type) {
@@ -109,7 +109,7 @@ func dictToRoom(dict map[string]interface{}) (r *Room, err error) {
 	simpleScalings := Scalings{}
 	for _, sc := range optionalSlice(dict["scaling"]) {
 		switch sc := sc.(type) {
-		case map[string]interface{}:
+		case map[string]any:
 			scalings := Scalings{}
 			for i, sx := range optionalStrings(sc["scaling"]) {
 				s, err := parseScaling(sx)
@@ -145,7 +145,7 @@ func dictToRoom(dict map[string]interface{}) (r *Room, err error) {
 	return r, nil
 }
 
-func readAnimations(x interface{}) []Animation {
+func readAnimations(x any) []Animation {
 	dicts := optionalDicts(x)
 	animations := make([]Animation, len(dicts))
 	for i, dict := range dicts {
@@ -162,18 +162,18 @@ func readAnimations(x interface{}) []Animation {
 	return animations
 }
 
-func optionalBool(x interface{}) bool {
+func optionalBool(x any) bool {
 	return optionalInt(x) != 0
 }
 
-func optionalInt(x interface{}) int {
+func optionalInt(x any) int {
 	if x == nil {
 		return 0
 	}
 	return x.(int)
 }
 
-func optionalFloat(x interface{}) float64 {
+func optionalFloat(x any) float64 {
 	if x == nil {
 		return 0
 	}
@@ -183,23 +183,23 @@ func optionalFloat(x interface{}) float64 {
 	return x.(float64)
 }
 
-func optionalString(x interface{}) string {
+func optionalString(x any) string {
 	if x == nil {
 		return ""
 	}
 	return x.(string)
 }
 
-func optionalDicts(x interface{}) []map[string]interface{} {
+func optionalDicts(x any) []map[string]any {
 	xs := optionalSlice(x)
-	slice := make([]map[string]interface{}, len(xs))
+	slice := make([]map[string]any, len(xs))
 	for i, elem := range xs {
-		slice[i] = elem.(map[string]interface{})
+		slice[i] = elem.(map[string]any)
 	}
 	return slice
 }
 
-func optionalStrings(x interface{}) []string {
+func optionalStrings(x any) []string {
 	xs := optionalSlice(x)
 	slice := make([]string, len(xs))
 	for i, elem := range xs {
@@ -212,9 +212,9 @@ func optionalStrings(x interface{}) []string {
 	return slice
 }
 
-func optionalSlice(x interface{}) []interface{} {
+func optionalSlice(x any) []any {
 	if x == nil {
 		return nil
 	}
-	return x.([]interface{})
+	return x.([]any)
 }
