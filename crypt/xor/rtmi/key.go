@@ -9,11 +9,9 @@ package rtmi
 import (
 	"crypto/md5"
 	"errors"
+	"github.com/fzipp/gg/crypt/internal/transform"
 	"io"
 	"os"
-	"path/filepath"
-
-	"github.com/fzipp/gg/crypt/internal/transform"
 )
 
 // Key is an XOR key for Return to Monkey Island.
@@ -42,23 +40,10 @@ func (key *Key) NeedsLoading() bool {
 
 func (key *Key) LoadFrom(execFile string) error {
 	if key.loaded {
-		return errors.New("this Key does not need to be loaded")
+		return errors.New("this key does not need to be loaded")
 	}
 
-	execFile, err := filepath.Abs(execFile)
-	if err != nil {
-		return err
-	}
-
-	directory := filepath.Dir(execFile)
-
-	gameExecutableName := filepath.Join(directory, "Return to Monkey Island.exe")
-
-	if _, err := os.Stat(gameExecutableName); errors.Is(err, os.ErrNotExist) {
-		return err
-	}
-
-	data, err := os.ReadFile(gameExecutableName)
+	data, err := os.ReadFile(execFile)
 	if err != nil {
 		return err
 	}

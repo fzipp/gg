@@ -30,6 +30,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -114,13 +115,7 @@ func main() {
 	if !ok {
 		fail("Unknown XOR key name: \"" + *keyName + "\"")
 	}
-
-	if key.NeedsLoading() {
-		err := key.LoadFrom(packFile)
-		if err != nil {
-			fail("XOR key could not be loaded. Please make sure that your pack file is located in the same directory as the game's executable.")
-		}
-	}
+	loadKeyIfNecessary(key, packFile)
 
 	if *createPattern != "" {
 		paths, err := filepath.Glob(pattern)
@@ -145,6 +140,32 @@ func main() {
 	if *extractPattern != "" {
 		extractAll(pack, filenames)
 	}
+}
+
+func loadKeyIfNecessary(key xor.Key, packFile string) {
+	if !key.NeedsLoading() {
+		return
+	}
+	execFile, err := locateExecFile(packFile)
+	if err != nil {
+		fail("Could not find game executable file. Please make sure that your pack file is located in the same directory as the game's executable.")
+	}
+	err = key.LoadFrom(execFile)
+	if err != nil {
+		fail("XOR key could not be loaded from the game's executable.")
+	}
+}
+
+func locateExecFile(packFile string) (string, error) {
+	packFile, err := filepath.Abs(packFile)
+	if err != nil {
+		return "", err
+	}
+	execFile := filepath.Join(filepath.Dir(packFile), "Return to Monkey Island.exe")
+	if _, err = os.Stat(execFile); errors.Is(err, os.ErrNotExist) {
+		return "", err
+	}
+	return execFile, nil
 }
 
 func filterFilenames(entries []fs.DirEntry, pattern string) ([]string, error) {
