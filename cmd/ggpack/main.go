@@ -16,12 +16,13 @@
 //	-create   Create a new pack and add the files from the file system
 //	          matching the pattern.
 //	-key      Name of the key to decrypt/encrypt the data via XOR.
-//	          Possible names: 56ad (default), 5bad, 566d, 5b6d
+//	          Possible names: 56ad (default), 5bad, 566d, 5b6d, rtmi
 //
 // Examples:
 //
 //	ggpack -list "*" ExamplePackage.ggpack1
 //	ggpack -list "*.tsv" ExamplePackage.ggpack1
+//	ggpack -list "*" -key rtmi Weird.ggpack1a
 //	ggpack -extract "ExampleSheet.png" ExamplePackage.ggpack1
 //	ggpack -extract "*.txt" ExamplePackage.ggpack1
 //	ggpack -extract "*" ExamplePackage.ggpack1
@@ -63,6 +64,7 @@ Flags:
 Examples:
     ggpack -list "*" ExamplePackage.ggpack1
     ggpack -list "*.tsv" ExamplePackage.ggpack1
+    ggpack -list "*" -key rtmi Weird.ggpack1a
     ggpack -extract "ExampleSheet.png" ExamplePackage.ggpack1
     ggpack -extract "*.txt" ExamplePackage.ggpack1
     ggpack -extract "*" ExamplePackage.ggpack1
@@ -114,7 +116,7 @@ func main() {
 	}
 
 	if key.NeedsLoading() {
-		err := key.LoadKey(packFile)
+		err := key.LoadFrom(packFile)
 		if err != nil {
 			fail("XOR key could not be loaded. Please make sure that your pack file is located in the same directory as the game's executable.")
 		}
@@ -183,7 +185,7 @@ func extract(pack *ggpack.Pack, filename string) {
 	check(err)
 }
 
-func create(packFilePath string, paths []string, key xor.KeyInterface) error {
+func create(packFilePath string, paths []string, key xor.Key) error {
 	packFile, err := os.Create(packFilePath)
 	if err != nil {
 		return fmt.Errorf("could not create pack file: %w", err)

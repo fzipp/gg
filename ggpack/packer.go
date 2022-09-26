@@ -20,7 +20,7 @@ import (
 type Packer struct {
 	writer   io.WriteSeeker
 	offset   int64
-	xorKey   xor.KeyInterface
+	xorKey   xor.Key
 	files    []any
 	finished bool
 }
@@ -36,7 +36,7 @@ func NewPacker(w io.WriteSeeker) (*Packer, error) {
 // SetKey sets the key for XOR encryption, if a different key than the default
 // key (xor.DefaultKey) should be used.
 // The key should be set before any write operations.
-func (p *Packer) SetKey(key xor.KeyInterface) {
+func (p *Packer) SetKey(key xor.Key) {
 	p.xorKey = key
 }
 

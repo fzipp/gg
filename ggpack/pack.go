@@ -24,7 +24,7 @@ type Pack struct {
 	reader    io.ReadSeeker
 	modTime   time.Time
 	directory *directory
-	xorKey    xor.KeyInterface
+	xorKey    xor.Key
 }
 
 func Open(path string) (*Pack, error) {
@@ -33,7 +33,7 @@ func Open(path string) (*Pack, error) {
 
 // OpenUsingKey is the same as Open, but uses a different key than the
 // default key (xor.DefaultKey) for XOR decryption of the pack.
-func OpenUsingKey(path string, key xor.KeyInterface) (*Pack, error) {
+func OpenUsingKey(path string, key xor.Key) (*Pack, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("could not open file '%s': %w", path, err)
