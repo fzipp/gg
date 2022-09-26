@@ -24,7 +24,7 @@ type Pack struct {
 	reader    io.ReadSeeker
 	modTime   time.Time
 	directory *directory
-	xorKey    *xor.Key
+	xorKey    xor.KeyInterface
 }
 
 func Open(path string) (*Pack, error) {
@@ -33,7 +33,7 @@ func Open(path string) (*Pack, error) {
 
 // OpenUsingKey is the same as Open, but uses a different key than the
 // default key (xor.DefaultKey) for XOR decryption of the pack.
-func OpenUsingKey(path string, key *xor.Key) (*Pack, error) {
+func OpenUsingKey(path string, key xor.KeyInterface) (*Pack, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("could not open file '%s': %w", path, err)
@@ -43,7 +43,7 @@ func OpenUsingKey(path string, key *xor.Key) (*Pack, error) {
 		return nil, fmt.Errorf("could get stat of file '%s': %w", path, err)
 	}
 	pack := Pack{reader: f, modTime: stat.ModTime(), xorKey: key}
-	pack.directory, err = pack.readDirectory()
+	pack.directory, err = pack.readDirectory(key.UsesShortKeyIndices())
 	if err != nil {
 		f.Close()
 		return nil, fmt.Errorf("could not read pack directory: %w", err)
@@ -97,14 +97,14 @@ func (p *Pack) fileReader(fi *fileInfo, isBnut bool) (io.Reader, error) {
 		return nil, fmt.Errorf("could not seek offset: %w", err)
 	}
 	limitedReader := &io.LimitedReader{R: p.reader, N: fi.size}
-	decodingReader := xor.DecodingReader(limitedReader, p.xorKey, fi.size)
+	decodingReader := p.xorKey.DecodingReader(limitedReader, fi.size)
 	if isBnut {
 		return bnut.DecodingReader(decodingReader, fi.size), nil
 	}
 	return decodingReader, nil
 }
 
-func (p *Pack) readDirectory() (*directory, error) {
+func (p *Pack) readDirectory(shortStringIndices bool) (*directory, error) {
 	root, err := p.readRootInfo()
 	if err != nil {
 		return nil, err
@@ -118,7 +118,7 @@ func (p *Pack) readDirectory() (*directory, error) {
 	if err != nil {
 		return nil, fmt.Errorf("could not read directory bytes: %w", err)
 	}
-	return readDirectory(buf, root)
+	return readDirectory(buf, root, shortStringIndices)
 }
 
 func (p *Pack) readRootInfo() (*fileInfo, error) {

@@ -54,7 +54,11 @@ Flags:
     -create   Create a new pack and add the files from the file system
               matching the pattern.
     -key      Name of the key to decrypt/encrypt the data via XOR.
-              Possible names: 56ad (default), 5bad, 566d, 5b6d, delores
+              Possible names: 56ad (default), 5bad, 566d, 5b6d, delores, rtmi
+
+              Note: Return to Monkey Island's key is extracted from the game's 
+              executable which is assumed to be located in the same directory as
+              the pack's file name.
 
 Examples:
     ggpack -list "*" ExamplePackage.ggpack1
@@ -107,6 +111,13 @@ func main() {
 	key, ok := xor.KnownKeys[strings.ToLower(*keyName)]
 	if !ok {
 		fail("Unknown XOR key name: \"" + *keyName + "\"")
+	}
+
+	if key.NeedsLoading() {
+		err := key.LoadKey(packFile)
+		if err != nil {
+			fail("XOR key could not be loaded. Please make sure that your pack file is located in the same directory as the game's executable.")
+		}
 	}
 
 	if *createPattern != "" {
@@ -172,7 +183,7 @@ func extract(pack *ggpack.Pack, filename string) {
 	check(err)
 }
 
-func create(packFilePath string, paths []string, key *xor.Key) error {
+func create(packFilePath string, paths []string, key xor.KeyInterface) error {
 	packFile, err := os.Create(packFilePath)
 	if err != nil {
 		return fmt.Errorf("could not create pack file: %w", err)

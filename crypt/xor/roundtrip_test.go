@@ -17,14 +17,14 @@ func TestWriterReaderRoundTrip(t *testing.T) {
 
 	original := []byte("This is a test.")
 	encodedBuf := &bytes.Buffer{}
-	_, err := xor.EncodingWriter(encodedBuf, key, int64(len(original))).Write(original)
+	_, err := key.EncodingWriter(encodedBuf, int64(len(original))).Write(original)
 	if err != nil {
 		t.Errorf("encoding writer returned an error: %s", err)
 	}
 	encoded := encodedBuf.Bytes()
 
 	decoded := make([]byte, len(encoded))
-	_, err = xor.DecodingReader(bytes.NewBuffer(encoded), key, int64(len(encoded))).Read(decoded)
+	_, err = key.DecodingReader(bytes.NewBuffer(encoded), int64(len(encoded))).Read(decoded)
 	if err != nil {
 		t.Errorf("decoding reader returned an error: %s", err)
 	}

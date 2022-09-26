@@ -10,8 +10,8 @@ import (
 	"strconv"
 )
 
-func Unmarshal(data []byte) (map[string]any, error) {
-	u := &unmarshaller{buf: data}
+func Unmarshal(data []byte, shortStringIndices bool) (map[string]any, error) {
+	u := &unmarshaller{buf: data, shortStringIndices: shortStringIndices}
 
 	signature := u.readRawInt()
 	if signature != formatSignature {
@@ -23,8 +23,9 @@ func Unmarshal(data []byte) (map[string]any, error) {
 
 	offsetIndexStart := u.readRawInt()
 	ou := &unmarshaller{
-		buf:    data,
-		offset: offsetIndexStart,
+		buf:                data,
+		offset:             offsetIndexStart,
+		shortStringIndices: shortStringIndices,
 	}
 	offsetIndex, err := ou.readValue()
 	if err != nil {
@@ -48,9 +49,10 @@ func Unmarshal(data []byte) (map[string]any, error) {
 }
 
 type unmarshaller struct {
-	buf         []byte
-	offset      int
-	offsetIndex offsets
+	buf                []byte
+	offset             int
+	offsetIndex        offsets
+	shortStringIndices bool
 }
 
 func (u *unmarshaller) readValue() (any, error) {
@@ -112,7 +114,15 @@ func (u *unmarshaller) readArray() ([]any, error) {
 }
 
 func (u *unmarshaller) readString() string {
-	startOffset := u.offsetIndex[u.readRawInt()]
+	var stringIndex int
+
+	if u.shortStringIndices {
+		stringIndex = int(u.readRawInt16())
+	} else {
+		stringIndex = int(u.readRawInt())
+	}
+
+	startOffset := u.offsetIndex[stringIndex]
 	endOffset := startOffset
 	for endOffset < len(u.buf) && u.buf[endOffset] != 0 {
 		endOffset++
@@ -139,6 +149,12 @@ func (u *unmarshaller) readOffsets() offsets {
 func (u *unmarshaller) readRawInt() int {
 	i := int(byteOrder.Uint32(u.buf[u.offset:]))
 	u.offset += 4
+	return i
+}
+
+func (u *unmarshaller) readRawInt16() int16 {
+	i := int16(byteOrder.Uint16(u.buf[u.offset:]))
+	u.offset += 2
 	return i
 }
 

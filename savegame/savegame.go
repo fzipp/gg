@@ -43,7 +43,7 @@ func Read(r io.Reader) (map[string]any, error) {
 	if !isChecksumOk(decrypted) {
 		return nil, fmt.Errorf("invalid checksum for savegame data")
 	}
-	dict, err := ggdict.Unmarshal(decrypted)
+	dict, err := ggdict.Unmarshal(decrypted, false) // Todo: RtMI?
 	if err != nil {
 		return nil, fmt.Errorf("could not unmarshal savegame data: %w", err)
 	}

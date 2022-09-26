@@ -20,7 +20,7 @@ func Read(r io.Reader) (*Room, error) {
 	if err != nil {
 		return nil, fmt.Errorf("could not read wimpy data: %w", err)
 	}
-	dict, err := ggdict.Unmarshal(buf.Bytes())
+	dict, err := ggdict.Unmarshal(buf.Bytes(), false) // Todo: Rtmi?
 	if err != nil {
 		return nil, fmt.Errorf("could not unmarshal wimpy dictionary: %w", err)
 	}

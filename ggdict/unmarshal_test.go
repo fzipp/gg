@@ -91,7 +91,7 @@ func TestUnmarshalErrors(t *testing.T) {
 		}, `could not read root: could not read dictionary value for key "a": could not read array value: unknown value type: 0`},
 	}
 	for _, tt := range tests {
-		_, err := ggdict.Unmarshal(tt.data)
+		_, err := ggdict.Unmarshal(tt.data, false)
 		if err == nil {
 			t.Errorf("expected error for unmarshalling of %#v, but no error returned", tt.data)
 			continue
