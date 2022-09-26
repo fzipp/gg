@@ -13,8 +13,14 @@ import (
 )
 
 func TestWriterReaderRoundTrip(t *testing.T) {
-	key := xor.DefaultKey
+	for name, key := range xor.KnownKeys {
+		t.Run(name, func(t *testing.T) {
+			testWriterReaderRoundTrip(t, key)
+		})
+	}
+}
 
+func testWriterReaderRoundTrip(t *testing.T, key xor.Key) {
 	original := []byte("This is a test.")
 	encodedBuf := &bytes.Buffer{}
 	_, err := key.EncodingWriter(encodedBuf, int64(len(original))).Write(original)
