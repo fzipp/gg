@@ -23,7 +23,7 @@ func TestRoundTrip(t *testing.T) {
 		"nothing": nil,
 	}
 	data := ggdict.Marshal(dict)
-	newDict, err := ggdict.Unmarshal(data)
+	newDict, err := ggdict.Unmarshal(data, false)
 	if err != nil {
 		t.Errorf("Unmarshal returned an error: %s", err)
 		return

@@ -48,11 +48,12 @@ Usage:
     ggdict -to-json|-from-json path
 
 Flags:
-    -to-json    Converts the given GGDictionary file to JSON format on
-                standard output.
-    -from-json  Converts the given JSON file to GGDictionary format on
-                standard output. You might want to redirect it to a file,
-                since it is a binary format.
+    -to-json        Converts the given GGDictionary file to JSON format on
+                	standard output.
+    -from-json      Converts the given JSON file to GGDictionary format on
+                	standard output. You might want to redirect it to a file,
+                	since it is a binary format.
+    -monkey-island	Use the new format used in Return to Monkey Island
 
 Examples:
     ggdict -to-json Example.wimpy > Example.wimpy.json
@@ -63,6 +64,7 @@ Examples:
 func main() {
 	ggdictFilePath := flag.String("to-json", "", "")
 	jsonFilePath := flag.String("from-json", "", "")
+	monkeyIslandMode := flag.Bool("monkey-island", false, "")
 
 	flag.Usage = usage
 	flag.Parse()
@@ -75,7 +77,7 @@ func main() {
 	}
 
 	if *ggdictFilePath != "" {
-		toJSON(*ggdictFilePath)
+		toJSON(*ggdictFilePath, *monkeyIslandMode)
 		return
 	}
 
@@ -85,10 +87,10 @@ func main() {
 	}
 }
 
-func toJSON(path string) {
+func toJSON(path string, monkeyIslandMode bool) {
 	buf, err := os.ReadFile(path)
 	check(err)
-	dict, err := ggdict.Unmarshal(buf)
+	dict, err := ggdict.Unmarshal(buf, monkeyIslandMode)
 	check(err)
 	jsonData, err := json.MarshalIndent(dict, "", "  ")
 	check(err)

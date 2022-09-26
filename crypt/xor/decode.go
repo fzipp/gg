@@ -16,7 +16,7 @@ type decoder struct {
 	xorSum byte
 }
 
-func newDecoder(key *Key, expectedSize int64) transform.Transformer {
+func (key *Key) newDecoder(expectedSize int64) transform.Transformer {
 	return &decoder{key: key, xorSum: byte(expectedSize)}
 }
 
@@ -29,6 +29,28 @@ func (d *decoder) Transform(dst, src []byte) {
 	}
 }
 
-func DecodingReader(r io.Reader, key *Key, expectedSize int64) io.Reader {
-	return transform.NewReader(r, newDecoder(key, expectedSize))
+func (key *Key) DecodingReader(r io.Reader, expectedSize int64) io.Reader {
+	return transform.NewReader(r, key.newDecoder(expectedSize))
+}
+
+type monkeyIslandDecoder struct {
+	key    *MonkeyIslandKey
+	cursor uint16
+}
+
+func (Key *MonkeyIslandKey) newDecoder(expectedSize int64) transform.Transformer {
+	return &monkeyIslandDecoder{key: Key, cursor: uint16(uint16(expectedSize) + uint16(Key.Modifier))}
+}
+
+func (key *MonkeyIslandKey) DecodingReader(r io.Reader, expectedSize int64) io.Reader {
+	return transform.NewReader(r, key.newDecoder(expectedSize))
+}
+
+func (d *monkeyIslandDecoder) Transform(dst, src []byte) {
+	//var d.cursor uint16 = uint16(uint16(len(src)) + uint16(d.key.Modifier))
+	for i, b := range src {
+		x := b ^ d.key.MagicBytes1[uint8((uint8(d.cursor)+(d.key.Modifier))&0xFF)] ^ d.key.MagicBytes2[d.cursor]
+		dst[i] = x
+		d.cursor = uint16(d.cursor + uint16(d.key.MagicBytes1[uint8(d.cursor&0xFF)])&0xFFFF)
+	}
 }

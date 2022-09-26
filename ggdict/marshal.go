@@ -107,6 +107,7 @@ func (m *marshaller) writeFloat(f float64) {
 }
 
 func (m *marshaller) writeKeyIndex(key string) {
+	// Todo: writing new files  with 16 bit string indices (as used in RtMI)
 	offset, ok := m.keyIndex[key]
 	if !ok {
 		offset = len(m.keys)

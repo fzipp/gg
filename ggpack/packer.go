@@ -20,7 +20,7 @@ import (
 type Packer struct {
 	writer   io.WriteSeeker
 	offset   int64
-	xorKey   *xor.Key
+	xorKey   xor.KeyInterface
 	files    []any
 	finished bool
 }
@@ -36,7 +36,7 @@ func NewPacker(w io.WriteSeeker) (*Packer, error) {
 // SetKey sets the key for XOR encryption, if a different key than the default
 // key (xor.DefaultKey) should be used.
 // The key should be set before any write operations.
-func (p *Packer) SetKey(key *xor.Key) {
+func (p *Packer) SetKey(key xor.KeyInterface) {
 	p.xorKey = key
 }
 
@@ -74,7 +74,7 @@ func (p *Packer) Write(filenameInPack string, r io.Reader, size int64) error {
 
 	fileOffset := p.offset
 	var w io.Writer = p.writer
-	w = xor.EncodingWriter(w, p.xorKey, size)
+	w = p.xorKey.EncodingWriter(w, size)
 	if filepath.Ext(filenameInPack) == ".bnut" {
 		w = bnut.EncodingWriter(w, size)
 	}
@@ -104,7 +104,7 @@ func (p *Packer) Finish() error {
 	dirOffset := p.offset
 	data := ggdict.Marshal(directory)
 	size := len(data)
-	n, err := xor.EncodingWriter(p.writer, p.xorKey, int64(size)).Write(data)
+	n, err := p.xorKey.EncodingWriter(p.writer, int64(size)).Write(data)
 	p.offset += int64(n)
 	if err != nil {
 		return err
