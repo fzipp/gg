@@ -13,15 +13,15 @@ import (
 func Unmarshal(data []byte, shortStringIndices bool) (map[string]any, error) {
 	u := &unmarshaller{buf: data, shortStringIndices: shortStringIndices}
 
-	signature := u.readRawInt()
+	signature := u.readRawInt32()
 	if signature != formatSignature {
 		return nil, fmt.Errorf("invalid format signature: %#x", signature)
 	}
 
 	// Unused, as far as known. Always 1. Maybe format version?
-	_ = u.readRawInt()
+	_ = u.readRawInt32()
 
-	offsetIndexStart := u.readRawInt()
+	offsetIndexStart := u.readRawInt32()
 	ou := &unmarshaller{
 		buf:                data,
 		offset:             offsetIndexStart,
@@ -81,7 +81,7 @@ func (u *unmarshaller) readTypeMarker() valueType {
 }
 
 func (u *unmarshaller) readDictionary() (map[string]any, error) {
-	length := u.readRawInt()
+	length := u.readRawInt32()
 	dictionary := make(map[string]any, length)
 	for i := 0; i < length; i++ {
 		key := u.readString()
@@ -98,7 +98,7 @@ func (u *unmarshaller) readDictionary() (map[string]any, error) {
 }
 
 func (u *unmarshaller) readArray() ([]any, error) {
-	length := u.readRawInt()
+	length := u.readRawInt32()
 	array := make([]any, length)
 	for i := 0; i < length; i++ {
 		value, err := u.readValue()
@@ -117,9 +117,9 @@ func (u *unmarshaller) readString() string {
 	var stringIndex int
 
 	if u.shortStringIndices {
-		stringIndex = int(u.readRawInt16())
+		stringIndex = u.readRawInt16()
 	} else {
-		stringIndex = int(u.readRawInt())
+		stringIndex = u.readRawInt32()
 	}
 
 	startOffset := u.offsetIndex[stringIndex]
@@ -141,19 +141,19 @@ func (u *unmarshaller) readFloat() (float64, error) {
 func (u *unmarshaller) readOffsets() offsets {
 	var offsets offsets
 	for byteOrder.Uint32(u.buf[u.offset:]) != 0xFFFFFFFF {
-		offsets = append(offsets, u.readRawInt())
+		offsets = append(offsets, u.readRawInt32())
 	}
 	return offsets
 }
 
-func (u *unmarshaller) readRawInt() int {
+func (u *unmarshaller) readRawInt32() int {
 	i := int(byteOrder.Uint32(u.buf[u.offset:]))
 	u.offset += 4
 	return i
 }
 
-func (u *unmarshaller) readRawInt16() int16 {
-	i := int16(byteOrder.Uint16(u.buf[u.offset:]))
+func (u *unmarshaller) readRawInt16() int {
+	i := int(byteOrder.Uint16(u.buf[u.offset:]))
 	u.offset += 2
 	return i
 }

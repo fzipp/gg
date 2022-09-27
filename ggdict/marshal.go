@@ -11,9 +11,9 @@ import (
 
 func Marshal(dict map[string]any, shortStringIndices bool) []byte {
 	m := newMarshaller(shortStringIndices)
-	m.writeRawInt(formatSignature)
-	m.writeRawInt(1)
-	m.writeRawInt(0)
+	m.writeRawInt32(formatSignature)
+	m.writeRawInt32(1)
+	m.writeRawInt32(0)
 	m.writeValue(dict)
 	m.writeKeys()
 	return m.buf
@@ -78,7 +78,7 @@ func (m *marshaller) writeDictionary(d map[string]any) {
 	sort.Strings(keys)
 
 	m.writeTypeMarker(typeDictionary)
-	m.writeRawInt(len(d))
+	m.writeRawInt32(len(d))
 	for _, k := range keys {
 		m.writeKeyIndex(k)
 		m.writeValue(d[k])
@@ -88,7 +88,7 @@ func (m *marshaller) writeDictionary(d map[string]any) {
 
 func (m *marshaller) writeArray(a []any) {
 	m.writeTypeMarker(typeArray)
-	m.writeRawInt(len(a))
+	m.writeRawInt32(len(a))
 	for _, v := range a {
 		m.writeValue(v)
 	}
@@ -111,14 +111,17 @@ func (m *marshaller) writeFloat(f float64) {
 }
 
 func (m *marshaller) writeKeyIndex(key string) {
-	// Todo: writing new files  with 16 bit string indices (as used in RtMI)
 	offset, ok := m.keyIndex[key]
 	if !ok {
 		offset = len(m.keys)
 		m.keyIndex[key] = offset
 		m.keys = append(m.keys, key)
 	}
-	m.writeRawInt(offset)
+	if m.shortStringIndices {
+		m.writeRawInt16(offset)
+	} else {
+		m.writeRawInt32(offset)
+	}
 }
 
 func (m *marshaller) writeKeys() {
@@ -133,10 +136,10 @@ func (m *marshaller) writeKeys() {
 	}
 	keyOffset += 5
 	for _, length := range lengths {
-		m.writeRawInt(keyOffset)
+		m.writeRawInt32(keyOffset)
 		keyOffset += length
 	}
-	m.writeRawInt(0xFFFFFFFF)
+	m.writeRawInt32(0xFFFFFFFF)
 
 	m.writeByte(0x8)
 	for _, key := range m.keys {
@@ -150,9 +153,16 @@ func (m *marshaller) writeKey(key string) {
 	m.writeByte(0)
 }
 
-func (m *marshaller) writeRawInt(i int) {
+func (m *marshaller) writeRawInt32(i int) {
 	intBytes := make([]byte, 4)
 	byteOrder.PutUint32(intBytes, uint32(i))
+	m.buf = append(m.buf, intBytes...)
+	m.offset += len(intBytes)
+}
+
+func (m *marshaller) writeRawInt16(i int) {
+	intBytes := make([]byte, 2)
+	byteOrder.PutUint16(intBytes, uint16(i))
 	m.buf = append(m.buf, intBytes...)
 	m.offset += len(intBytes)
 }
