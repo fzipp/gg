@@ -75,7 +75,11 @@ func (p *Packer) Write(filenameInPack string, r io.Reader, size int64) error {
 	fileOffset := p.offset
 	var w io.Writer = p.writer
 	w = p.xorKey.EncodingWriter(w, size)
-	if filepath.Ext(filenameInPack) == ".bnut" {
+	switch filepath.Ext(filenameInPack) {
+	case ".bank":
+		// FMOD bank files are not XOR encrypted
+		w = p.writer
+	case ".bnut":
 		w = bnut.EncodingWriter(w, size)
 	}
 	n, err := io.CopyN(w, r, size)
