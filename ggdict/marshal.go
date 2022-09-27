@@ -9,8 +9,8 @@ import (
 	"strconv"
 )
 
-func Marshal(dict map[string]any) []byte {
-	m := newMarshaller()
+func Marshal(dict map[string]any, shortStringIndices bool) []byte {
+	m := newMarshaller(shortStringIndices)
 	m.writeRawInt(formatSignature)
 	m.writeRawInt(1)
 	m.writeRawInt(0)
@@ -20,14 +20,18 @@ func Marshal(dict map[string]any) []byte {
 }
 
 type marshaller struct {
-	buf      []byte
-	offset   int
-	keys     []string
-	keyIndex map[string]int
+	buf                []byte
+	offset             int
+	keys               []string
+	keyIndex           map[string]int
+	shortStringIndices bool
 }
 
-func newMarshaller() *marshaller {
-	return &marshaller{keyIndex: make(map[string]int)}
+func newMarshaller(shortStringIndices bool) *marshaller {
+	return &marshaller{
+		keyIndex:           make(map[string]int),
+		shortStringIndices: shortStringIndices,
+	}
 }
 
 func (m *marshaller) writeValue(value any) {

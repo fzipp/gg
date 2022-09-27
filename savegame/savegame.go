@@ -60,7 +60,7 @@ func Save(path string, dict map[string]any) error {
 }
 
 func Write(w io.Writer, dict map[string]any) error {
-	data := ggdict.Marshal(dict)
+	data := ggdict.Marshal(dict, false) // Todo: RtMI?
 	data = zeroPad(data, 500_000)
 	sum := checksum(data)
 	footerBytes := make([]byte, lenFooter)

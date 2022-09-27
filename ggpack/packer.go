@@ -102,7 +102,7 @@ func (p *Packer) Finish() error {
 		"files": p.files,
 	}
 	dirOffset := p.offset
-	data := ggdict.Marshal(directory)
+	data := ggdict.Marshal(directory, p.xorKey.UsesShortKeyIndices())
 	size := len(data)
 	n, err := p.xorKey.EncodingWriter(p.writer, int64(size)).Write(data)
 	p.offset += int64(n)

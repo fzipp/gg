@@ -215,7 +215,7 @@ func TestMarshal(t *testing.T) {
 		}},
 	}
 	for _, tt := range tests {
-		if data := ggdict.Marshal(tt.dict); !reflect.DeepEqual(data, tt.want) {
+		if data := ggdict.Marshal(tt.dict, false); !reflect.DeepEqual(data, tt.want) {
 			t.Errorf("ggdict marshalling of %#v was:\n%#v, want:\n%#v", tt.dict, data, tt.want)
 		}
 	}

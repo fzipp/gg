@@ -82,7 +82,7 @@ func main() {
 	}
 
 	if *jsonFilePath != "" {
-		fromJSON(*jsonFilePath)
+		fromJSON(*jsonFilePath, *monkeyIslandMode)
 		return
 	}
 }
@@ -97,13 +97,13 @@ func toJSON(path string, monkeyIslandMode bool) {
 	fmt.Println(string(jsonData))
 }
 
-func fromJSON(path string) {
+func fromJSON(path string, monkeyIslandMode bool) {
 	jsonData, err := os.ReadFile(path)
 	check(err)
 	dict := make(map[string]any)
 	err = json.Unmarshal(jsonData, &dict)
 	check(err)
-	_, err = os.Stdout.Write(ggdict.Marshal(dict))
+	_, err = os.Stdout.Write(ggdict.Marshal(dict, monkeyIslandMode))
 	check(err)
 }
 
