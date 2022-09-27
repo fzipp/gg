@@ -9,9 +9,10 @@ package rtmi
 import (
 	"crypto/md5"
 	"errors"
-	"github.com/fzipp/gg/crypt/internal/transform"
 	"io"
 	"os"
+
+	"github.com/fzipp/gg/crypt/internal/transform"
 )
 
 // Key is an XOR key for Return to Monkey Island.

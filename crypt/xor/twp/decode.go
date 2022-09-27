@@ -4,9 +4,7 @@
 
 package twp
 
-import (
-	"github.com/fzipp/gg/crypt/internal/transform"
-)
+import "github.com/fzipp/gg/crypt/internal/transform"
 
 type decoder struct {
 	key    *Key
