@@ -83,22 +83,25 @@ func (p *Pack) Open(name string) (fs.File, error) {
 	if !exists {
 		return nil, &fs.PathError{Op: "open", Path: name, Err: fs.ErrNotExist}
 	}
-	isBnut := filepath.Ext(name) == ".bnut"
-	r, err := p.fileReader(fi, isBnut)
+	r, err := p.fileReader(fi)
 	if err != nil {
 		return nil, &fs.PathError{Op: "open", Path: name, Err: err}
 	}
 	return &file{stat: fi, r: r}, nil
 }
 
-func (p *Pack) fileReader(fi *fileInfo, isBnut bool) (io.Reader, error) {
+func (p *Pack) fileReader(fi *fileInfo) (io.Reader, error) {
 	_, err := p.reader.Seek(fi.packOffset, io.SeekStart)
 	if err != nil {
 		return nil, fmt.Errorf("could not seek offset: %w", err)
 	}
 	limitedReader := &io.LimitedReader{R: p.reader, N: fi.size}
 	decodingReader := p.xorKey.DecodingReader(limitedReader, fi.size)
-	if isBnut {
+	switch filepath.Ext(fi.name) {
+	case ".bank":
+		// FMOD bank files are not XOR encrypted
+		return limitedReader, nil
+	case ".bnut":
 		return bnut.DecodingReader(decodingReader, fi.size), nil
 	}
 	return decodingReader, nil
@@ -109,7 +112,7 @@ func (p *Pack) readDirectory(shortStringIndices bool) (*directory, error) {
 	if err != nil {
 		return nil, err
 	}
-	r, err := p.fileReader(root, false)
+	r, err := p.fileReader(root)
 	if err != nil {
 		return nil, err
 	}
