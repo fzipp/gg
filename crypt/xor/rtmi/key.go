@@ -63,7 +63,7 @@ func extractKey(data []byte, length int, firstByte byte, md5sum *[16]byte) []byt
 	for i := 0; i < len(data)-length; i++ {
 		if isMatch(data[i:], length, firstByte, md5sum) {
 			key := make([]byte, length)
-			copy(key, data[:length])
+			copy(key, data[i:i+length])
 			return key
 		}
 	}
