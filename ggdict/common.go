@@ -20,8 +20,8 @@ const (
 	typeOffsets
 	_
 	typeCoordinate
+	typeCoordinatePair
 	typeCoordinateList
-	typeHotspot
 )
 
 const formatSignature = 0x04030201

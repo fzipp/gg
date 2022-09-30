@@ -63,7 +63,7 @@ func (u *unmarshaller) readValue() (any, error) {
 		return u.readDictionary()
 	case typeArray:
 		return u.readArray()
-	case typeString, typeCoordinate, typeCoordinateList, typeHotspot:
+	case typeString, typeCoordinate, typeCoordinatePair, typeCoordinateList:
 		return u.readString(), nil
 	case typeInteger:
 		return u.readInteger()
