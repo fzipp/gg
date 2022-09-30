@@ -15,8 +15,14 @@ import (
 type Key interface {
 	DecodingReader(r io.Reader, expectedSize int64) io.Reader
 	EncodingWriter(w io.Writer, expectedSize int64) io.Writer
+
+	// NeedsLoading returns true if the key needs to be loaded
+	// from the executable file via LoadFrom.
 	NeedsLoading() bool
+	// LoadFrom loads the key from the executable file.
+	// This is only necessary if NeedsLoading returns true.
 	LoadFrom(execFile string) error
+
 	UsesShortKeyIndices() bool
 }
 

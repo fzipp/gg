@@ -17,10 +17,11 @@ import (
 
 // Key is an XOR key for Return to Monkey Island.
 type Key struct {
-	MagicBytes1 [256]byte
-	MagicBytes2 [65536]byte
+	// MagicBytes1 is the short (256 bytes) key.
+	MagicBytes1 []byte
+	// MagicBytes2 is the long (65536 bytes) key.
+	MagicBytes2 []byte
 	Modifier    byte
-	loaded      bool
 }
 
 func (key *Key) DecodingReader(r io.Reader, expectedSize int64) io.Reader {
@@ -36,58 +37,39 @@ func (key *Key) UsesShortKeyIndices() bool {
 }
 
 func (key *Key) NeedsLoading() bool {
-	return !key.loaded
+	return key.MagicBytes1 == nil || key.MagicBytes2 == nil
 }
 
 func (key *Key) LoadFrom(execFile string) error {
-	if key.loaded {
-		return errors.New("this key does not need to be loaded")
-	}
-
 	data, err := os.ReadFile(execFile)
 	if err != nil {
 		return err
 	}
-
-	isMatch := func(firstValue byte, length int, checksum [16]byte, startIndex int) bool {
-		if data[startIndex] != firstValue {
-			return false
-		}
-		sum := md5.Sum(data[startIndex:(length + startIndex)])
-		for i := 0; i < 16; i++ {
-			if sum[i] != checksum[i] {
-				return false
-			}
-		}
-		return true
-	}
-
-	found1 := false
-	found2 := false
-
-	for i := 0; i < len(data)-256; i++ {
-		if isMatch(0xD5, 256, [16]byte{0xB1, 0x90, 0xC4, 0x21, 0xFE, 0x7F, 0xEA, 0xFC, 0x77, 0xC5, 0x17, 0xA2, 0x32, 0xAB, 0xBB, 0x4C}, i) {
-			for x := 0; x < 256; x++ {
-				key.MagicBytes1[x] = data[i+x]
-			}
-			found1 = true
-			break
-		}
-	}
-
-	for i := 0; i < len(data)-65536; i++ {
-		if isMatch(0xF7, 65536, [16]byte{0x7F, 0xAA, 0xF6, 0x57, 0x4F, 0x27, 0xEB, 0xD9, 0xD2, 0x74, 0x4C, 0xC6, 0x8E, 0x41, 0x15, 0xC8}, i) {
-			for x := 0; x < 65536; x++ {
-				key.MagicBytes2[x] = data[i+x]
-			}
-			found2 = true
-			break
-		}
-	}
-
-	if !found1 || !found2 {
+	key.MagicBytes1 = extractKey(data, 256, 0xD5, &[...]byte{
+		0xB1, 0x90, 0xC4, 0x21, 0xFE, 0x7F, 0xEA, 0xFC,
+		0x77, 0xC5, 0x17, 0xA2, 0x32, 0xAB, 0xBB, 0x4C,
+	})
+	key.MagicBytes2 = extractKey(data, 65536, 0xF7, &[...]byte{
+		0x7F, 0xAA, 0xF6, 0x57, 0x4F, 0x27, 0xEB, 0xD9,
+		0xD2, 0x74, 0x4C, 0xC6, 0x8E, 0x41, 0x15, 0xC8,
+	})
+	if key.NeedsLoading() {
 		return errors.New("one or both keys could not be found")
 	}
-
 	return nil
+}
+
+func extractKey(data []byte, length int, firstByte byte, md5sum *[16]byte) []byte {
+	for i := 0; i < len(data)-length; i++ {
+		if isMatch(data[i:], length, firstByte, md5sum) {
+			key := make([]byte, length)
+			copy(key, data[:length])
+			return key
+		}
+	}
+	return nil
+}
+
+func isMatch(data []byte, length int, firstByte byte, md5sum *[16]byte) bool {
+	return data[0] == firstByte && md5.Sum(data[:length]) == *md5sum
 }

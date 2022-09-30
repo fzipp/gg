@@ -14,6 +14,11 @@ import (
 
 func TestWriterReaderRoundTrip(t *testing.T) {
 	for name, key := range xor.KnownKeys {
+		if key.NeedsLoading() {
+			// don't test keys which need to be loaded from
+			// the executable file
+			continue
+		}
 		t.Run(name, func(t *testing.T) {
 			testWriterReaderRoundTrip(t, key)
 		})
