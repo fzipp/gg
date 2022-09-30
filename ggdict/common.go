@@ -18,6 +18,10 @@ const (
 	typeInteger
 	typeFloat
 	typeOffsets
+	_
+	typeCoordinate
+	typeCoordinateList
+	typeHotspot
 )
 
 const formatSignature = 0x04030201
