@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package ggpack
+package ggpack_test
 
 import (
 	"io"
@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"reflect"
 	"testing"
+
+	"github.com/fzipp/gg/ggpack"
 )
 
 func TestPackRoundTrip(t *testing.T) {
@@ -29,7 +31,7 @@ func filePackRoundTrip(t *testing.T, dataFileName string) {
 	defer packFile.Close()
 	defer os.Remove(packFile.Name())
 
-	packer, err := NewPacker(packFile)
+	packer, err := ggpack.NewPacker(packFile)
 	if err != nil {
 		t.Errorf("could not create packer: %s", err)
 	}
@@ -49,7 +51,7 @@ func filePackRoundTrip(t *testing.T, dataFileName string) {
 		t.Errorf("could not finish ggpack: %s", err)
 	}
 
-	pack, err := Open(packFile.Name())
+	pack, err := ggpack.Open(packFile.Name())
 	if err != nil {
 		t.Errorf("could not open ggpack: %s", err)
 	}
