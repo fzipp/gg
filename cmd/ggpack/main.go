@@ -16,7 +16,13 @@
 //	-create   Create a new pack and add the files from the file system
 //	          matching the pattern.
 //	-key      Name of the key to decrypt/encrypt the data via XOR.
-//	          Possible names: 56ad (default), 5bad, 566d, 5b6d, delores, rtmi
+//	          Supported key names:
+//	              twp-56ad    Thimbleweed Park (default)
+//	              twp-5bad    Thimbleweed Park
+//	              twp-566d    Thimbleweed Park
+//	              twp-5b6d    Thimbleweed Park
+//	              delores     Delores
+//	              monkey      Return to Monkey Island
 //
 //	Note: Return to Monkey Island's key is extracted from the game's
 //	executable which is assumed to be located in the same directory as
@@ -26,7 +32,7 @@
 //
 //	ggpack -list "*" ExamplePackage.ggpack1
 //	ggpack -list "*.tsv" ExamplePackage.ggpack1
-//	ggpack -list "*" -key rtmi Weird.ggpack1a
+//	ggpack -list "*" -key monkey Weird.ggpack1a
 //	ggpack -extract "ExampleSheet.png" ExamplePackage.ggpack1
 //	ggpack -extract "*.txt" ExamplePackage.ggpack1
 //	ggpack -extract "*" ExamplePackage.ggpack1
@@ -59,7 +65,13 @@ Flags:
     -create   Create a new pack and add the files from the file system
               matching the pattern.
     -key      Name of the key to decrypt/encrypt the data via XOR.
-              Possible names: 56ad (default), 5bad, 566d, 5b6d, delores, rtmi
+              Supported keys:
+                  thimbleweed         Thimbleweed Park (default)
+                  thimbleweed-5bad    Thimbleweed Park
+                  thimbleweed-566d    Thimbleweed Park
+                  thimbleweed-5b6d    Thimbleweed Park
+                  delores             Delores
+                  monkey              Return to Monkey Island
 
               Note: Return to Monkey Island's key is extracted from the game's 
               executable which is assumed to be located in the same directory as
@@ -68,18 +80,20 @@ Flags:
 Examples:
     ggpack -list "*" ExamplePackage.ggpack1
     ggpack -list "*.tsv" ExamplePackage.ggpack1
-    ggpack -list "*" -key rtmi Weird.ggpack1a
+    ggpack -list "*" -key monkey Weird.ggpack1a
     ggpack -extract "ExampleSheet.png" ExamplePackage.ggpack1
     ggpack -extract "*.txt" ExamplePackage.ggpack1
     ggpack -extract "*" ExamplePackage.ggpack1
     ggpack -create "*" ExamplePackage.ggpack1`)
 }
 
+var seeHelp = "See -help for more information."
+
 func main() {
 	listPattern := flag.String("list", "", "List files in the pack matching the pattern.")
 	extractPattern := flag.String("extract", "", "Extract the files from the pack matching the pattern to the current working directory.")
 	createPattern := flag.String("create", "", "Create a new pack and add the files from the file system matching the pattern.")
-	keyName := flag.String("key", "56ad", "Name of the key to decrypt/encrypt the data via XOR.")
+	keyName := flag.String("key", "thimbleweed", "Name of the key to decrypt/encrypt the data via XOR.")
 
 	flag.Usage = usage
 	flag.Parse()
@@ -90,7 +104,7 @@ func main() {
 	}
 	if flag.NArg() > 1 {
 		fmt.Println(flag.Args())
-		fail("Please specify only one pack_file argument. See -help for more information.")
+		fail("Please specify only one pack_file argument. " + seeHelp)
 		return
 	}
 	packFile := flag.Arg(0)
@@ -104,19 +118,19 @@ func main() {
 	}
 
 	if len(patterns) == 0 {
-		fail("Please choose an operation via flag. See -help for more information.")
+		fail("Please choose an operation via flag. " + seeHelp)
 		return
 	}
 
 	if len(patterns) > 1 {
-		fail("Please use only one operation flag, not multiple at the same time. See -help for more information.")
+		fail("Please use only one operation flag, not multiple at the same time. " + seeHelp)
 		return
 	}
 
 	pattern := patterns[0]
 	key, ok := xor.KnownKeys[strings.ToLower(*keyName)]
 	if !ok {
-		fail("Unknown XOR key name: \"" + *keyName + "\"")
+		fail(`Unknown key name: "` + *keyName + `". ` + seeHelp)
 	}
 	loadKeyIfNecessary(key, packFile)
 
