@@ -11,6 +11,7 @@ import (
 	"io"
 
 	"github.com/fzipp/gg/crypt/internal/transform"
+	"github.com/fzipp/gg/ggdict"
 )
 
 // Key is an XOR key for Thimbleweed Park or Delores.
@@ -35,6 +36,6 @@ func (key *Key) LoadFrom(execFile string) error {
 	return errors.New("this Key does not need to be loaded")
 }
 
-func (key *Key) UsesShortKeyIndices() bool {
-	return false
+func (key *Key) GGDictFormat() ggdict.Format {
+	return ggdict.FormatThimbleweed
 }

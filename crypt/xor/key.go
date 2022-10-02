@@ -9,6 +9,7 @@ import (
 
 	"github.com/fzipp/gg/crypt/xor/rtmi"
 	"github.com/fzipp/gg/crypt/xor/twp"
+	"github.com/fzipp/gg/ggdict"
 )
 
 // Key is an XOR key for ggpack files.
@@ -23,7 +24,7 @@ type Key interface {
 	// This is only necessary if NeedsLoading returns true.
 	LoadFrom(execFile string) error
 
-	UsesShortKeyIndices() bool
+	GGDictFormat() ggdict.Format
 }
 
 // KnownKeys is a collection of XOR keys for ggpack files found in the wild.

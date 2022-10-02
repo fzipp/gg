@@ -16,7 +16,11 @@
 //	-create   Create a new pack and add the files from the file system
 //	          matching the pattern.
 //	-key      Name of the key to decrypt/encrypt the data via XOR.
-//	          Possible names: 56ad (default), 5bad, 566d, 5b6d, rtmi
+//	          Possible names: 56ad (default), 5bad, 566d, 5b6d, delores, rtmi
+//
+//	Note: Return to Monkey Island's key is extracted from the game's
+//	executable which is assumed to be located in the same directory as
+//	the pack file.
 //
 // Examples:
 //
@@ -59,7 +63,7 @@ Flags:
 
               Note: Return to Monkey Island's key is extracted from the game's 
               executable which is assumed to be located in the same directory as
-              the pack's file name.
+              the pack file.
 
 Examples:
     ggpack -list "*" ExamplePackage.ggpack1

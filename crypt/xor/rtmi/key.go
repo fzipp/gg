@@ -13,6 +13,7 @@ import (
 	"os"
 
 	"github.com/fzipp/gg/crypt/internal/transform"
+	"github.com/fzipp/gg/ggdict"
 )
 
 // Key is an XOR key for Return to Monkey Island.
@@ -32,8 +33,8 @@ func (key *Key) EncodingWriter(w io.Writer, expectedSize int64) io.Writer {
 	return transform.NewWriter(w, newEncoder(key, expectedSize))
 }
 
-func (key *Key) UsesShortKeyIndices() bool {
-	return true
+func (key *Key) GGDictFormat() ggdict.Format {
+	return ggdict.FormatMonkey
 }
 
 func (key *Key) NeedsLoading() bool {

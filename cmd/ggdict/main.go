@@ -11,15 +11,16 @@
 //
 // Usage:
 //
-//	ggdict -to-json|-from-json path
+//	ggdict -to-json|-from-json [-monkey-island] path
 //
 // Flags:
 //
-//	-to-json    Converts the given GGDictionary file to JSON format on
-//	            standard output.
-//	-from-json  Converts the given JSON file to GGDictionary format on
-//	            standard output. You might want to redirect it to a file,
-//	            since it is a binary format.
+//	-to-json        Converts the given GGDictionary file to JSON format on
+//	                standard output.
+//	-from-json      Converts the given JSON file to GGDictionary format on
+//	                standard output. You might want to redirect it to a file,
+//	                since it is a binary format.
+//	-monkey-island  Use the new format used in Return to Monkey Island.
 //
 // Examples:
 //
@@ -45,15 +46,15 @@ a binary format. For example, for Thimbleweed Park *.wimpy and *Animation.json
 files are stored in this format within a "ggpack" file.
 
 Usage:
-    ggdict -to-json|-from-json path
+    ggdict -to-json|-from-json [-monkey-island] path
 
 Flags:
     -to-json        Converts the given GGDictionary file to JSON format on
-                	standard output.
+                    standard output.
     -from-json      Converts the given JSON file to GGDictionary format on
-                	standard output. You might want to redirect it to a file,
-                	since it is a binary format.
-    -monkey-island	Use the new format used in Return to Monkey Island
+                    standard output. You might want to redirect it to a file,
+                    since it is a binary format.
+    -monkey-island  Use the new format used in Return to Monkey Island.
 
 Examples:
     ggdict -to-json Example.wimpy > Example.wimpy.json
@@ -76,34 +77,41 @@ func main() {
 		fail("-from-json and -to-json flags cannot be used together. See -help for more information.")
 	}
 
+	var format ggdict.Format
+	if *monkeyIslandMode {
+		format = ggdict.FormatMonkey
+	} else {
+		format = ggdict.FormatThimbleweed
+	}
+
 	if *ggdictFilePath != "" {
-		toJSON(*ggdictFilePath, *monkeyIslandMode)
+		toJSON(*ggdictFilePath, format)
 		return
 	}
 
 	if *jsonFilePath != "" {
-		fromJSON(*jsonFilePath, *monkeyIslandMode)
+		fromJSON(*jsonFilePath, format)
 		return
 	}
 }
 
-func toJSON(path string, monkeyIslandMode bool) {
+func toJSON(path string, format ggdict.Format) {
 	buf, err := os.ReadFile(path)
 	check(err)
-	dict, err := ggdict.Unmarshal(buf, monkeyIslandMode)
+	dict, err := ggdict.Unmarshal(buf, format)
 	check(err)
 	jsonData, err := json.MarshalIndent(dict, "", "  ")
 	check(err)
 	fmt.Println(string(jsonData))
 }
 
-func fromJSON(path string, monkeyIslandMode bool) {
+func fromJSON(path string, format ggdict.Format) {
 	jsonData, err := os.ReadFile(path)
 	check(err)
 	dict := make(map[string]any)
 	err = json.Unmarshal(jsonData, &dict)
 	check(err)
-	_, err = os.Stdout.Write(ggdict.Marshal(dict, monkeyIslandMode))
+	_, err = os.Stdout.Write(ggdict.Marshal(dict, format))
 	check(err)
 }
 

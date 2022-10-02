@@ -18,11 +18,12 @@ import (
 )
 
 type Packer struct {
-	writer   io.WriteSeeker
-	offset   int64
-	xorKey   xor.Key
-	files    []any
-	finished bool
+	writer     io.WriteSeeker
+	offset     int64
+	xorKey     xor.Key
+	dictFormat ggdict.Format
+	files      []any
+	finished   bool
 }
 
 func NewPacker(w io.WriteSeeker) (*Packer, error) {
@@ -30,7 +31,9 @@ func NewPacker(w io.WriteSeeker) (*Packer, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Packer{writer: w, offset: int64(n), xorKey: xor.DefaultKey}, nil
+	p := &Packer{writer: w, offset: int64(n)}
+	p.SetKey(xor.DefaultKey)
+	return p, nil
 }
 
 // SetKey sets the key for XOR encryption, if a different key than the default
@@ -38,6 +41,7 @@ func NewPacker(w io.WriteSeeker) (*Packer, error) {
 // The key should be set before any write operations.
 func (p *Packer) SetKey(key xor.Key) {
 	p.xorKey = key
+	p.dictFormat = key.GGDictFormat()
 }
 
 func (p *Packer) WriteFiles(paths []string) error {
@@ -102,11 +106,11 @@ func (p *Packer) Finish() error {
 		return errors.New("pack already finished")
 	}
 
-	directory := map[string]any{
+	dir := map[string]any{
 		"files": p.files,
 	}
 	dirOffset := p.offset
-	data := ggdict.Marshal(directory, p.xorKey.UsesShortKeyIndices())
+	data := ggdict.Marshal(dir, p.dictFormat)
 	size := len(data)
 	n, err := p.xorKey.EncodingWriter(p.writer, int64(size)).Write(data)
 	p.offset += int64(n)

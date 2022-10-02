@@ -15,7 +15,7 @@ import (
 )
 
 func Write(w io.Writer, r *Room) (n int, err error) {
-	return w.Write(ggdict.Marshal(roomToDict(r), false)) // Todo: Rtmi?
+	return w.Write(ggdict.Marshal(roomToDict(r), ggdict.FormatThimbleweed)) // TODO: FormatMonkey?
 }
 
 func roomToDict(r *Room) map[string]any {

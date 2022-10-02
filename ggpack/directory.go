@@ -86,8 +86,8 @@ const (
 	keySize     = "size"
 )
 
-func readDirectory(buf []byte, root *fileInfo, shortStringIndices bool) (*directory, error) {
-	directoryDict, err := ggdict.Unmarshal(buf, shortStringIndices)
+func readDirectory(buf []byte, root *fileInfo, f ggdict.Format) (*directory, error) {
+	directoryDict, err := ggdict.Unmarshal(buf, f)
 	if err != nil {
 		return nil, fmt.Errorf("could not read directory: %w", err)
 	}

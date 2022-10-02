@@ -22,8 +22,9 @@ func TestRoundTrip(t *testing.T) {
 		},
 		"nothing": nil,
 	}
-	data := ggdict.Marshal(dict, false)
-	newDict, err := ggdict.Unmarshal(data, false)
+	format := ggdict.FormatThimbleweed
+	data := ggdict.Marshal(dict, format)
+	newDict, err := ggdict.Unmarshal(data, format)
 	if err != nil {
 		t.Errorf("Unmarshal returned an error: %s", err)
 		return

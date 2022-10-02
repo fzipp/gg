@@ -9,7 +9,7 @@
 // https://www.movable-type.co.uk/scripts/xxtea.pdf
 package xxtea
 
-// Key is a 128 bit key.
+// Key is a 128-bit key.
 type Key [4]uint32
 
 func Encrypt(p []byte, k Key) []byte {

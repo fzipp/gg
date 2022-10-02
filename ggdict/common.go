@@ -7,18 +7,20 @@ package ggdict
 
 import "encoding/binary"
 
-type offsets []int
-type valueType byte
+type (
+	offsets   []int
+	valueType byte
+)
 
 const (
-	typeNull = valueType(iota + 1)
+	typeNull valueType = iota + 1
 	typeDictionary
 	typeArray
 	typeString
 	typeInteger
 	typeFloat
-	typeOffsets
-	_
+	typeStringOffsets
+	typeStrings
 	typeCoordinate
 	typeCoordinatePair
 	typeCoordinateList

@@ -10,33 +10,36 @@ import (
 	"strconv"
 )
 
-func Unmarshal(data []byte, shortStringIndices bool) (map[string]any, error) {
-	u := &unmarshaller{buf: data, shortStringIndices: shortStringIndices}
+func Unmarshal(data []byte, f Format) (map[string]any, error) {
+	u := &unmarshaller{
+		buf:    data,
+		format: f,
+	}
 
-	signature := u.readRawInt32()
+	signature := u.readRawUint32()
 	if signature != formatSignature {
 		return nil, fmt.Errorf("invalid format signature: %#x", signature)
 	}
 
 	// Unused, as far as known. Always 1. Maybe format version?
-	_ = u.readRawInt32()
+	_ = u.readRawUint32()
 
-	offsetIndexStart := u.readRawInt32()
+	stringOffsetsStart := u.readRawUint32()
 	ou := &unmarshaller{
-		buf:                data,
-		offset:             offsetIndexStart,
-		shortStringIndices: shortStringIndices,
+		buf:    data,
+		offset: stringOffsetsStart,
+		format: f,
 	}
-	offsetIndex, err := ou.readValue()
+	stringOffsets, err := ou.readValue()
 	if err != nil {
-		return nil, fmt.Errorf("could not read offset index: %w", err)
+		return nil, fmt.Errorf("could not read string offsets: %w", err)
 	}
 
-	offsets, ok := offsetIndex.(offsets)
+	offs, ok := stringOffsets.(offsets)
 	if !ok {
-		return nil, errors.New("read value is not an offset index")
+		return nil, errors.New("read value is not a string offsets table")
 	}
-	u.offsetIndex = offsets
+	u.stringOffsets = offs
 	root, err := u.readValue()
 	if err != nil {
 		return nil, fmt.Errorf("could not read root: %w", err)
@@ -49,10 +52,10 @@ func Unmarshal(data []byte, shortStringIndices bool) (map[string]any, error) {
 }
 
 type unmarshaller struct {
-	buf                []byte
-	offset             int
-	offsetIndex        offsets
-	shortStringIndices bool
+	buf           []byte
+	offset        int
+	stringOffsets offsets
+	format        Format
 }
 
 func (u *unmarshaller) readValue() (any, error) {
@@ -69,19 +72,19 @@ func (u *unmarshaller) readValue() (any, error) {
 		return u.readInteger()
 	case typeFloat:
 		return u.readFloat()
-	case typeOffsets:
-		return u.readOffsets(), nil
+	case typeStringOffsets:
+		return u.readStringOffsets(), nil
 	default:
 		return nil, fmt.Errorf("unknown value type: %d", valueType)
 	}
 }
 
 func (u *unmarshaller) readTypeMarker() valueType {
-	return valueType(u.readByte())
+	return valueType(u.readRawByte())
 }
 
 func (u *unmarshaller) readDictionary() (map[string]any, error) {
-	length := u.readRawInt32()
+	length := u.readRawUint32()
 	dictionary := make(map[string]any, length)
 	for i := 0; i < length; i++ {
 		key := u.readString()
@@ -98,7 +101,7 @@ func (u *unmarshaller) readDictionary() (map[string]any, error) {
 }
 
 func (u *unmarshaller) readArray() ([]any, error) {
-	length := u.readRawInt32()
+	length := u.readRawUint32()
 	array := make([]any, length)
 	for i := 0; i < length; i++ {
 		value, err := u.readValue()
@@ -114,15 +117,13 @@ func (u *unmarshaller) readArray() ([]any, error) {
 }
 
 func (u *unmarshaller) readString() string {
-	var stringIndex int
-
-	if u.shortStringIndices {
-		stringIndex = u.readRawInt16()
+	var strIndex int
+	if u.format.ShortStringIndices {
+		strIndex = u.readRawUint16()
 	} else {
-		stringIndex = u.readRawInt32()
+		strIndex = u.readRawUint32()
 	}
-
-	startOffset := u.offsetIndex[stringIndex]
+	startOffset := u.stringOffsets[strIndex]
 	endOffset := startOffset
 	for endOffset < len(u.buf) && u.buf[endOffset] != 0 {
 		endOffset++
@@ -138,27 +139,27 @@ func (u *unmarshaller) readFloat() (float64, error) {
 	return strconv.ParseFloat(u.readString(), 64)
 }
 
-func (u *unmarshaller) readOffsets() offsets {
-	var offsets offsets
+func (u *unmarshaller) readStringOffsets() offsets {
+	var offs offsets
 	for byteOrder.Uint32(u.buf[u.offset:]) != 0xFFFFFFFF {
-		offsets = append(offsets, u.readRawInt32())
+		offs = append(offs, u.readRawUint32())
 	}
-	return offsets
+	return offs
 }
 
-func (u *unmarshaller) readRawInt32() int {
+func (u *unmarshaller) readRawUint32() int {
 	i := int(byteOrder.Uint32(u.buf[u.offset:]))
 	u.offset += 4
 	return i
 }
 
-func (u *unmarshaller) readRawInt16() int {
+func (u *unmarshaller) readRawUint16() int {
 	i := int(byteOrder.Uint16(u.buf[u.offset:]))
 	u.offset += 2
 	return i
 }
 
-func (u *unmarshaller) readByte() byte {
+func (u *unmarshaller) readRawByte() byte {
 	b := u.buf[u.offset]
 	u.offset++
 	return b

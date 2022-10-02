@@ -16,15 +16,17 @@ import (
 
 	"github.com/fzipp/gg/crypt/bnut"
 	"github.com/fzipp/gg/crypt/xor"
+	"github.com/fzipp/gg/ggdict"
 )
 
 // Pack provides read access to the contents of a ggpack file.
 // It implements the fs.FS, fs.ReadDirFS and io.Closer interfaces.
 type Pack struct {
-	reader    io.ReadSeeker
-	modTime   time.Time
-	directory *directory
-	xorKey    xor.Key
+	reader     io.ReadSeeker
+	modTime    time.Time
+	directory  *directory
+	xorKey     xor.Key
+	dictFormat ggdict.Format
 }
 
 func Open(path string) (*Pack, error) {
@@ -42,8 +44,13 @@ func OpenUsingKey(path string, key xor.Key) (*Pack, error) {
 	if err != nil {
 		return nil, fmt.Errorf("could get stat of file '%s': %w", path, err)
 	}
-	pack := Pack{reader: f, modTime: stat.ModTime(), xorKey: key}
-	pack.directory, err = pack.readDirectory(key.UsesShortKeyIndices())
+	pack := Pack{
+		reader:     f,
+		modTime:    stat.ModTime(),
+		xorKey:     key,
+		dictFormat: key.GGDictFormat(),
+	}
+	pack.directory, err = pack.readDirectory()
 	if err != nil {
 		f.Close()
 		return nil, fmt.Errorf("could not read pack directory: %w", err)
@@ -107,7 +114,7 @@ func (p *Pack) fileReader(fi *fileInfo) (io.Reader, error) {
 	return decodingReader, nil
 }
 
-func (p *Pack) readDirectory(shortStringIndices bool) (*directory, error) {
+func (p *Pack) readDirectory() (*directory, error) {
 	root, err := p.readRootInfo()
 	if err != nil {
 		return nil, err
@@ -121,7 +128,7 @@ func (p *Pack) readDirectory(shortStringIndices bool) (*directory, error) {
 	if err != nil {
 		return nil, fmt.Errorf("could not read directory bytes: %w", err)
 	}
-	return readDirectory(buf, root, shortStringIndices)
+	return readDirectory(buf, root, p.dictFormat)
 }
 
 func (p *Pack) readRootInfo() (*fileInfo, error) {

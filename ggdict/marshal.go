@@ -9,28 +9,29 @@ import (
 	"strconv"
 )
 
-func Marshal(dict map[string]any, shortStringIndices bool) []byte {
-	m := newMarshaller(shortStringIndices)
-	m.writeRawInt32(formatSignature)
-	m.writeRawInt32(1)
-	m.writeRawInt32(0)
+func Marshal(dict map[string]any, f Format) []byte {
+	m := newMarshaller(f)
+	m.writeRawUint32(formatSignature)
+	m.writeRawUint32(1)
+	m.writeRawUint32(0)
 	m.writeValue(dict)
-	m.writeKeys()
+	m.writeStringOffsets()
+	m.writeStrings()
 	return m.buf
 }
 
 type marshaller struct {
-	buf                []byte
-	offset             int
-	keys               []string
-	keyIndex           map[string]int
-	shortStringIndices bool
+	buf           []byte
+	offset        int
+	strings       []string
+	stringIndices map[string]int
+	format        Format
 }
 
-func newMarshaller(shortStringIndices bool) *marshaller {
+func newMarshaller(f Format) *marshaller {
 	return &marshaller{
-		keyIndex:           make(map[string]int),
-		shortStringIndices: shortStringIndices,
+		stringIndices: make(map[string]int),
+		format:        f,
 	}
 }
 
@@ -62,7 +63,7 @@ func (m *marshaller) writeValue(value any) {
 }
 
 func (m *marshaller) writeTypeMarker(t valueType) {
-	m.writeByte(byte(t))
+	m.writeRawByte(byte(t))
 }
 
 func (m *marshaller) writeNull() {
@@ -70,25 +71,28 @@ func (m *marshaller) writeNull() {
 }
 
 func (m *marshaller) writeDictionary(d map[string]any) {
-	// sorted keys for reproducible results
-	keys := make([]string, 0, len(d))
-	for k := range d {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-
 	m.writeTypeMarker(typeDictionary)
-	m.writeRawInt32(len(d))
-	for _, k := range keys {
-		m.writeKeyIndex(k)
+	m.writeRawUint32(len(d))
+	// sorted keys for reproducible results
+	for _, k := range sortedKeys(d) {
+		m.writeStringIndex(k)
 		m.writeValue(d[k])
 	}
 	m.writeTypeMarker(typeDictionary)
 }
 
+func sortedKeys(m map[string]any) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
+}
+
 func (m *marshaller) writeArray(a []any) {
 	m.writeTypeMarker(typeArray)
-	m.writeRawInt32(len(a))
+	m.writeRawUint32(len(a))
 	for _, v := range a {
 		m.writeValue(v)
 	}
@@ -97,77 +101,83 @@ func (m *marshaller) writeArray(a []any) {
 
 func (m *marshaller) writeString(s string) {
 	m.writeTypeMarker(typeString)
-	m.writeKeyIndex(s)
+	m.writeStringIndex(s)
 }
 
 func (m *marshaller) writeInteger(i int) {
 	m.writeTypeMarker(typeInteger)
-	m.writeKeyIndex(strconv.Itoa(i))
+	m.writeStringIndex(strconv.Itoa(i))
 }
 
 func (m *marshaller) writeFloat(f float64) {
 	m.writeTypeMarker(typeFloat)
-	m.writeKeyIndex(strconv.FormatFloat(f, 'g', -1, 64))
+	m.writeStringIndex(strconv.FormatFloat(f, 'g', -1, 64))
 }
 
-func (m *marshaller) writeKeyIndex(key string) {
-	offset, ok := m.keyIndex[key]
+func (m *marshaller) writeStringIndex(s string) {
+	idx, ok := m.stringIndices[s]
 	if !ok {
-		offset = len(m.keys)
-		m.keyIndex[key] = offset
-		m.keys = append(m.keys, key)
+		idx = len(m.strings)
+		m.stringIndices[s] = idx
+		m.strings = append(m.strings, s)
 	}
-	if m.shortStringIndices {
-		m.writeRawInt16(offset)
+	if m.format.ShortStringIndices {
+		m.writeRawUint16(idx)
 	} else {
-		m.writeRawInt32(offset)
+		m.writeRawUint32(idx)
 	}
 }
 
-func (m *marshaller) writeKeys() {
-	byteOrder.PutUint32(m.buf[8:], uint32(m.offset))
-
-	m.writeTypeMarker(typeOffsets)
-	keyOffset := m.offset
-	lengths := make([]int, len(m.keys))
-	for i, key := range m.keys {
+func (m *marshaller) writeStringOffsets() {
+	m.writeStringOffsetsStart(m.offset)
+	m.writeTypeMarker(typeStringOffsets)
+	strOffset := m.offset
+	lengths := make([]int, len(m.strings))
+	for i, key := range m.strings {
 		lengths[i] = len(key) + 1
-		keyOffset += 4
+		strOffset += 4
 	}
-	keyOffset += 5
+	strOffset += 5
 	for _, length := range lengths {
-		m.writeRawInt32(keyOffset)
-		keyOffset += length
+		m.writeRawUint32(strOffset)
+		strOffset += length
 	}
-	m.writeRawInt32(0xFFFFFFFF)
+	m.writeRawUint32(0xFFFFFFFF)
+}
 
-	m.writeByte(0x8)
-	for _, key := range m.keys {
-		m.writeKey(key)
+func (m *marshaller) writeStringOffsetsStart(offset int) {
+	byteOrder.PutUint32(m.buf[8:], uint32(offset))
+}
+
+func (m *marshaller) writeStrings() {
+	m.writeTypeMarker(typeStrings)
+	for _, s := range m.strings {
+		m.writeRawString(s)
 	}
 }
 
-func (m *marshaller) writeKey(key string) {
-	m.buf = append(m.buf, []byte(key)...)
-	m.offset += len(key)
-	m.writeByte(0)
+func (m *marshaller) writeRawString(s string) {
+	m.writeRawBytes(append([]byte(s), 0))
 }
 
-func (m *marshaller) writeRawInt32(i int) {
-	intBytes := make([]byte, 4)
-	byteOrder.PutUint32(intBytes, uint32(i))
-	m.buf = append(m.buf, intBytes...)
-	m.offset += len(intBytes)
+func (m *marshaller) writeRawUint32(i int) {
+	b := make([]byte, 4)
+	byteOrder.PutUint32(b, uint32(i))
+	m.writeRawBytes(b)
 }
 
-func (m *marshaller) writeRawInt16(i int) {
-	intBytes := make([]byte, 2)
-	byteOrder.PutUint16(intBytes, uint16(i))
-	m.buf = append(m.buf, intBytes...)
-	m.offset += len(intBytes)
+func (m *marshaller) writeRawUint16(i int) {
+	b := make([]byte, 2)
+	byteOrder.PutUint16(b, uint16(i))
+	m.writeRawBytes(b)
 }
 
-func (m *marshaller) writeByte(b byte) {
+func (m *marshaller) writeRawBytes(b []byte) {
+	m.buf = append(m.buf, b...)
+	m.offset += len(b)
+}
+
+func (m *marshaller) writeRawByte(b byte) {
 	m.buf = append(m.buf, b)
 	m.offset++
 }
