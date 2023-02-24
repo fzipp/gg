@@ -3,7 +3,7 @@ module github.com/fzipp/gg/cmd/yack
 go 1.18
 
 require (
-	github.com/fzipp/gg v0.0.0-20210216232330-a4573b6ce265
+	github.com/fzipp/gg v0.6.1
 	github.com/robertkrimen/otto v0.2.1
 )
 

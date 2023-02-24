@@ -1,6 +1,6 @@
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
-github.com/fzipp/gg v0.0.0-20210216232330-a4573b6ce265 h1:/BKOBa9qa7AwfCxlNPMF9L45Dl1uv974FCL1iT1eKtc=
-github.com/fzipp/gg v0.0.0-20210216232330-a4573b6ce265/go.mod h1:hLI+701gfoiJGg3FNrbMmvkfaI5+sm0rIuIhnZfKqPo=
+github.com/fzipp/gg v0.6.1 h1:vw5tp35rE7MRBhiNlsjzzizrXkNl5UCgWgjrnmvsqYw=
+github.com/fzipp/gg v0.6.1/go.mod h1:7LqMcasDmgu1V7RRlOgeCxfd3QzpQ6DuQK2ECvE+7SU=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/robertkrimen/otto v0.2.1 h1:FVP0PJ0AHIjC+N4pKCG9yCDz6LHNPCwi/GKID5pGGF0=
 github.com/robertkrimen/otto v0.2.1/go.mod h1:UPwtJ1Xu7JrLcZjNWN8orJaM5n5YEtqL//farB5FlRY=
