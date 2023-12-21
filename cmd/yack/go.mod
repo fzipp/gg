@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/fzipp/gg v0.6.1
-	github.com/robertkrimen/otto v0.2.1
+	github.com/robertkrimen/otto v0.3.0
 )
 
 require (
